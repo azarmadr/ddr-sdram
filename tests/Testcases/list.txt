@@ -1,0 +1,14 @@
+The address for SDRAM is {ba1,ba0, row addressbits, column address bits}. Two bit byte enables select what bytes out of 4 (32 bits) is
+            required.
+            Write these r test cases and test.
+            Fiix one programming of mode reg with one set of values
+
+            1) Write  1 beat to each bank (4 banks) one after another.  Look if there are any gaps between bank writing
+            2)  Read 1 beat to each bank (4 banks) one after another.  Look if there are any gaps between bank reading.
+            3) Do the same as (1)  (2) with 2 banks read, 2 banks  write.
+            4) Write at the end of the row to spill to the next row (do with each bank 4 tests)
+            5) Read at the end of the row to spill to the next row (do with each bank 4 tests)
+            6) write to spill over bank x to bank x+1. ( starting at the end of last row in a bank)
+            7)  read o spill over bank x to bank x+1.
+
+            -BP
