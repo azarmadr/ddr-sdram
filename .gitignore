@@ -3,3 +3,4 @@ trasncript
 tests/run
 tests/sdr.cf
 tests/work/*
+.gitignore
