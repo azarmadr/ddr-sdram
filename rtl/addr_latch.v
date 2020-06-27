@@ -14,8 +14,7 @@
 //  Rev1.4     : 19 August 2002    				           //	
 //	        			                                   //
 /////////////////////////////////////////////////////////////////////////////
-
-
+`include"define.v"
 module addr_latch(
 
    // Outputs
@@ -100,6 +99,58 @@ module addr_latch(
    wire[8:0]			bl;
    wire burst_1;
 
+  wire c2  = (sdc_cas_latency===3'b010);
+  wire c3  = (sdc_cas_latency===3'b011);
+  wire SrdOvf = (burst_2) ? (AdrCnt >= SDRCOLS-12'h004 && AdrCnt <= SDRCOLS) :
+	       (burst_1) ? (AdrCnt >= SDRCOLS-12'h003 && AdrCnt < SDRCOLS) :
+               (burst_4&c2) ? (RdAdrCnt >= SDRCOLS-12'h004 && RdAdrCnt < SDRCOLS-12'h001) :
+	       (burst_8&c2) ? (RdAdrCnt > SDRCOLS-12'h004 && RdAdrCnt < SDRCOLS) :
+	       (burst_p&c2) ? (RdAdrCnt > SDRCOLS-12'h004 && RdAdrCnt < SDRCOLS) ://!!``
+		RdAdrCnt > SDRCOLS-12'h005 && RdAdrCnt < SDRCOLS; 
+ 
+wire DrdOvf =  (bl==9'h02) ? ((!sdr_req_wr_n) ? (AdrCnt >= DDRCOLS-12'h003):(AdrCnt >= DDRCOLS)):
+		(bl==9'h04) ? ((!sdr_req_wr_n) ? (AdrCnt >= DDRCOLS-12'h003):(AdrCnt >= DDRCOLS)):
+		(!sdr_req_wr_n) ? (AdrCnt > DDRCOLS-12'h005):(AdrCnt > DDRCOLS-12'h002); 
+
+
+ wire DrdOF  =  (burst_4) ?(DrdOvf^DrdOvfD)&DrdOvfD :DrdOvf;
+
+ 					//needs to be checked for each burst
+ wire OvFlRst = (burst_p) ?(AdrCnt > 12'h010 &AdrCnt <12'h020) :
+		(burst_8) ?(AdrCnt > 12'h007 &AdrCnt <12'h010) :
+		(burst_4) ?(AdrCnt > 12'h003 &AdrCnt <12'h009) :
+		(burst_2) ?(AdrCnt > 12'h001 &AdrCnt <12'h008) :
+		(AdrCnt > 12'h001 &AdrCnt <12'h003);
+ wire NxtAdrWr = !(AdrCntSt1);
+ wire RowOvf   = ((rowAdr == MAXROWS)& AdrCntOvf);
+ wire RowOvfD = SRowOvf[7];
+ wire AdrCntSTART = ((sdc_sel) ? ((sdr_req_wr_n) ? (AdrCntSt ) : AdrCntSt1) //for sdr 
+			      : ((!sdr_req_wr_n) ? (AdrCntSt1) : AdrCntSt)) ;	   //for ddr!!##
+
+ wire CasEnd	 = (CasCnt==3'b000);
+ wire [`COL_ADDR_MSB-1:0]	colAdrW;
+ wire ddrCnt = StWrRd&(StWrRd1^StWrRd);
+
+
+  wire pag  = burst_p & AdrCntSt4;  
+  wire rdSt = (!SLA) ? (pag|(c3& AdrCntSt4)|(c2& AdrCntSt3)) //!! SIngle loc. access
+                     : AdrCntSt;  
+  
+ wire rdOvf	= (!sdc_sel) ?  DrdOvf : 1'b0;//SrdOvf;//!!
+
+ wire pDc3bl2   = (!sdr_req_wr_n&!sdc_sel&(StWrRd1&(StWrRd^StWrRd1)));
+ wire EAP 	= 	(enAp)|((burst_2) ? pDc3bl2 :StWrRd1&rdOvf);
+
+ wire auto_prech= (!burst_p & StWrRd) ? sdc_ad[10]: 1'b0;   // check prech bit in adr
+
+ 									//->!!29/8/02-17.00
+ wire SrdOF = (burst_4&c2)? (SrdOvfD^SrdOvf)&SrdOvfD :
+	   (burst_4|burst_p|burst_8) ?(SrdOvfD^SrdOvf)&SrdOvf :(SrdOvfD^SrdOvf)&SrdOvfD ;//!!29/8/02-17.00
+ wire AdrCntOvf = (sdc_sel)? ((sdr_req_wr_n) ? SrdOF: (AdrCnt == SDRCOLS-12'h001))
+			   :      (DrdOvf);//!28/8/02
+
+							   //->!!29/8/02-17.00
+
    assign sdc_burst_length = mode_reg[2:0];
    assign sdc_cas_latency  = mode_reg[6:4];
    assign burst_1 = !burst_2&!burst_4&!burst_8&!burst_p;
@@ -182,7 +233,7 @@ module addr_latch(
      end
 
 	CasCnt  	<= (!AdrCntSt) ?  ((sdc_sel) ? sdc_cas_latency-3'h1:sdc_cas_latency+3'h0 ) : 
- 		 	   (CasEnd) ? 3'h00 :CasCnt-3'h1;
+ 		 	   (CasEnd) ? 3'h0 :CasCnt-3'h1;
 
      case (sdc_burst_length)
  
@@ -279,13 +330,6 @@ module addr_latch(
 	  adrChg 	<= 1'b0;
 	 end
     end
-  wire c2  = (sdc_cas_latency===3'b010);
-  wire c3  = (sdc_cas_latency===3'b011);
-
-  wire pag  = burst_p & AdrCntSt4;  
-  wire rdSt = (!SLA) ? (pag|(c3& AdrCntSt4)|(c2& AdrCntSt3)) //!! SIngle loc. access
-                     : AdrCntSt;  
-  
 		//--==>23 bits  ba(2)+ row(12)+ col(9)
 
   assign sdc_ba =  (extMR) ? 2'b01 : bankAdr;
@@ -293,50 +337,6 @@ module addr_latch(
                   (Mrow_addr)? (12'h400|(u_addr[`U_ADDR_MSB-2:`COL_ADDR_MSB]))       :
 		  (row_addr) ? (rowAdr) : 
 		  ((EAP) ? (12'h400|AdrCnt):AdrCnt); //enApre @ end of write/rd
-
- wire EAP 	= 	(enAp)|((burst_2) ? pDc3bl2 :StWrRd1&rdOvf);
-
- wire pDc3bl2   = (!sdr_req_wr_n&!sdc_sel&(StWrRd1&(StWrRd^StWrRd1)));
-
- wire rdOvf	= (!sdc_sel) ?  DrdOvf : 1'b0;//SrdOvf;//!!
- wire auto_prech= (!burst_p & StWrRd) ? sdc_ad[10]: 1'b0;   // check prech bit in adr
-
- 									//->!!29/8/02-17.00
- wire AdrCntOvf = (sdc_sel)? ((sdr_req_wr_n) ? SrdOF: (AdrCnt == SDRCOLS-12'h001))
-			   :      (DrdOvf);//!28/8/02
-
- wire SrdOF = (burst_4&c2)? (SrdOvfD^SrdOvf)&SrdOvfD :
-	   (burst_4|burst_p|burst_8) ?(SrdOvfD^SrdOvf)&SrdOvf :(SrdOvfD^SrdOvf)&SrdOvfD ;//!!29/8/02-17.00
-							   //->!!29/8/02-17.00
-
- wire SrdOvf = (burst_2) ? (AdrCnt >= SDRCOLS-12'h004 && AdrCnt <= SDRCOLS) :
-	       (burst_1) ? (AdrCnt >= SDRCOLS-12'h003 && AdrCnt < SDRCOLS) :
-               (burst_4&c2) ? (RdAdrCnt >= SDRCOLS-12'h004 && RdAdrCnt < SDRCOLS-12'h001) :
-	       (burst_8&c2) ? (RdAdrCnt > SDRCOLS-12'h004 && RdAdrCnt < SDRCOLS) :
-	       (burst_p&c2) ? (RdAdrCnt > SDRCOLS-12'h004 && RdAdrCnt < SDRCOLS) ://!!``
-		RdAdrCnt > SDRCOLS-12'h005 && RdAdrCnt < SDRCOLS; 
-
- wire DrdOF  =  (burst_4) ?(DrdOvf^DrdOvfD)&DrdOvfD :DrdOvf;
-
- wire DrdOvf =  (bl==9'h02) ? ((!sdr_req_wr_n) ? (AdrCnt >= DDRCOLS-12'h003):(AdrCnt >= DDRCOLS)):
-		(bl==9'h04) ? ((!sdr_req_wr_n) ? (AdrCnt >= DDRCOLS-12'h003):(AdrCnt >= DDRCOLS)):
-		(!sdr_req_wr_n) ? (AdrCnt > DDRCOLS-12'h005):(AdrCnt > DDRCOLS-12'h002); 
-
- 					//needs to be checked for each burst
- wire OvFlRst = (burst_p) ?(AdrCnt > 12'h010 &AdrCnt <12'h020) :
-		(burst_8) ?(AdrCnt > 12'h007 &AdrCnt <12'h010) :
-		(burst_4) ?(AdrCnt > 12'h003 &AdrCnt <12'h009) :
-		(burst_2) ?(AdrCnt > 12'h001 &AdrCnt <12'h008) :
-		(AdrCnt > 12'h001 &AdrCnt <12'h003);
- wire NxtAdrWr = !(AdrCntSt1);
- wire RowOvf   = ((rowAdr == MAXROWS)& AdrCntOvf);
- wire RowOvfD = SRowOvf[7];
- wire AdrCntSTART = ((sdc_sel) ? ((sdr_req_wr_n) ? (AdrCntSt ) : AdrCntSt1) //for sdr 
-			      : ((!sdr_req_wr_n) ? (AdrCntSt1) : AdrCntSt)) ;	   //for ddr!!##
-
- wire CasEnd	 = (CasCnt==3'b000);
- wire [`COL_ADDR_MSB-1:0]	colAdrW;
- wire ddrCnt = StWrRd&(StWrRd1^StWrRd);
 
 
 endmodule // addr_latch

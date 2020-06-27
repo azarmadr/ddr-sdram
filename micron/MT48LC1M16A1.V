@@ -756,7 +756,7 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     endtask
 
     // Timing Check for -10 component (CL = 3)
-    specify
+    /*specify
         specparam
                     tAH  =  1,                                          // Addr, Ba Hold Time
                     tAS  =  3,                                          // Addr, Ba Setup Time
@@ -782,7 +782,7 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         $setuphold(posedge Clk,    Ba,    tAS,  tAH);
         $setuphold(posedge Clk,    Dqm,   tCMS, tCMH);
         $setuphold(posedge Dq_chk, Dq,    tDS,  tDH);
-    endspecify
+    endspecify*/
 
 endmodule
 

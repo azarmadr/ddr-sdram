@@ -15,9 +15,59 @@
 //	        			                                   //
 /////////////////////////////////////////////////////////////////////////////
 
+`include"define.v"
 module TOP_TB;
 
 
+   //-----------for sdram----------
+
+   wire [`SDC_ADDR_MSB:0] 	sdc_ad;
+   wire [2:0]cmd_out_sdc ;
+   wire [`SDC_DATA_MSB:0]  	sdc_dq;   
+   wire [3:0] 	    		sdc_dm;
+   wire [1:0] 	    		sdc_ba; 
+   wire 		    	sdc_rasb, sdc_casb, sdc_web;
+   wire 		    	sdc_clk;
+   wire   	    		sdc_dqs;
+   wire 		    	sdc_csb, sdc_cke;
+
+  //----------for host-------------
+
+  wire		mclk,
+		s_resetn,
+		sdc_req;
+  wire [`U_ADDR_MSB:0] 
+		sdc_req_adr;
+  wire	[1:0]	sdc_req_len;
+  wire		sdc_req_wr_n;
+
+  wire  [`U_DATA_MSB:0]
+		sdc_wr_data,
+		sdc_rd_data;
+  wire  [3:0]	sdc_wr_en_n;
+
+  wire		sdc_en;
+
+  wire  [`SDC_ADDR_MSB:0]	sdc_mode_reg;
+
+  wire  [3:0]	sdc_tras_d,
+		sdc_trp_d,
+		sdc_trcd_d;
+  wire  [2:0]	sdc_cas;
+
+  wire  [3:0]	sdc_trca_d,	
+		sdc_twr_d;
+  wire  [11:0]	sdc_rfrsh;
+  wire  [2:0]	sdc_rfmax;
+  wire 	sdc_sel;  
+
+
+  wire		sdc_req_ack,
+		sdc_rd_valid,
+		sdc_wr_next,
+		sdc_init_done;
+ 
+   assign cmd_out_sdc = {sdc_rasb, sdc_casb, sdc_web};
 //(1Meg x 16 x 4 Banks)DDR	//......DDR SDRAM
 
 
@@ -87,54 +137,6 @@ module TOP_TB;
 	);
 
 
-   //-----------for sdram----------
-
-   wire [`SDC_ADDR_MSB:0] 	sdc_ad;
-   wire [`SDC_DATA_MSB:0]  	sdc_dq;   
-   wire [3:0] 	    		sdc_dm;
-   wire [1:0] 	    		sdc_ba; 
-   wire 		    	sdc_rasb, sdc_casb, sdc_web;
-   wire 		    	sdc_clk;
-   wire   	    		sdc_dqs;
-   wire 		    	sdc_csb, sdc_cke;
-
-  //----------for host-------------
-
-  wire		mclk,
-		s_resetn,
-		sdc_req;
-  wire [`U_ADDR_MSB:0] 
-		sdc_req_adr;
-  wire	[1:0]	sdc_req_len;
-  wire		sdc_req_wr_n;
-
-  wire  [`U_DATA_MSB:0]
-		sdc_wr_data,
-		sdc_rd_data;
-  wire  [3:0]	sdc_wr_en_n;
-
-  wire		sdc_en;
-
-  wire  [`SDC_ADDR_MSB:0]	sdc_mode_reg;
-
-  wire  [3:0]	sdc_tras_d,
-		sdc_trp_d,
-		sdc_trcd_d;
-  wire  [2:0]	sdc_cas;
-
-  wire  [3:0]	sdc_trca_d,	
-		sdc_twr_d;
-  wire  [11:0]	sdc_rfrsh;
-  wire  [2:0]	sdc_rfmax;
-  wire 	sdc_sel;  
-
-
-  wire		sdc_req_ack,
-		sdc_rd_valid,
-		sdc_wr_next,
-		sdc_init_done;
- 
-   wire [2:0]cmd_out_sdc = {sdc_rasb, sdc_casb, sdc_web};
 
 endmodule
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//

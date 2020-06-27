@@ -15,6 +15,7 @@
 //				Rmd delay 4 wr_next			   //	
 /////////////////////////////////////////////////////////////////////////////
 
+`include"define.v"
 module sdc_bnkctlr(
 
    //Outputs
@@ -29,6 +30,15 @@ module sdc_bnkctlr(
 	req_len,RowOvfOut,ref_end
 	
 	);
+ parameter 	s_powerup 		= 4'h4,//,
+		s_wait    		= 4'h3,//1, 
+		s_prech   		= 4'h2, 
+		s_aref    		= 4'h1,//3, 
+		s_lmreg   		= 4'h0,//4, 
+		s_idle    		= 4'h5,
+		s_burstx  		= 4'h8, 
+		s_prechwait		= 4'hC, 
+		s_arefwait 		= 4'hD;
 
   output	write_en,		// wr en o/p
 		read_en,		// rd en
@@ -78,7 +88,54 @@ module sdc_bnkctlr(
   input [1:0]	bnkAdr,			// bank addr
 		req_len;		// # of beats
 
+reg [3:0] 		i_cnt,trca_cnt,tras_cnt,
+	  		trp_cnt,state,n_state;
+wire  w_powerup 	= (state == s_powerup);
+wire  w_wait		= (state == s_wait );
+wire  w_prech		= (state == s_prech);
+wire  w_aref		= (state == s_aref);
+wire  w_lmreg		= (state == s_lmreg);
+wire  w_idle 		= (state == s_idle);
+wire  w_burstx		= (state == s_burstx);
+
+reg [1:0]lmod;
+reg init_done;
+reg [1:0] i_cmd;
+
+wire [1:0]lmod1 	= lmod;
+wire  lmodChk		= (sdr_sel) ? (lmod1 == 2'b01):(lmod1 == 2'b10);
+
+assign  extMR		= (lmod == 2'b01)& w_lmreg;
+
+
+reg 			waitcnt_st,trp_st,trca_st,
+    			tras_st,burst1,burst2,burst3;
+reg [1:0]		arefcnt;
+
+reg 			trp_end1;
+reg		 	tras_end1,
+    			wr_req1,wr_req2,wr_req3;
+reg 			init_done1,init_done2,init_done3,init_done4,
+			sdr_reqD,StRef;
+reg [15:0]		w_cnt;
+
+
 //-----------wires---------------
+wire  wait_end   ;
+wire  tras_end   ;
+wire  trp_end    ;
+wire burstp  	;
+//wire rdAdr0,rdAdr1,rdAdr2,rdAdr3;
+wire [2:0]cmdBA,cmdBA0,cmdBA1,cmdBA2,cmdBA3;
+wire StWrRd,wrNxt;
+wire 	write_en0,write_en1,write_en2,write_en3,
+	read_en0,read_en1,read_en2,read_en3,
+	rowAdrB0,rowAdrB1,rowAdrB2,rowAdrB3,
+	StWrRd0,StWrRd1,StWrRd2,StWrRd3,
+	wrNxt0,wrNxt1,wrNxt2,wrNxt3;
+
+wire [7:0]BstNumX0,BstNumX1,BstNumX2,BstNumX3,BstNumI;
+
 
   wire		clk,clk2x,
 		rst2,
@@ -128,19 +185,6 @@ module sdc_bnkctlr(
   wire 		BusFree;
   wire		enAp,enAp0,enAp1,enAp2,enAp3;
   wire		rdAdr,rdAdr0,rdAdr1,rdAdr2,rdAdr3;
-
- parameter 	s_powerup 		= 4'h4,//,
-		s_wait    		= 4'h3,//1, 
-		s_prech   		= 4'h2, 
-		s_aref    		= 4'h1,//3, 
-		s_lmreg   		= 4'h0,//4, 
-		s_idle    		= 4'h5,
-		s_burstx  		= 4'h8, 
-		s_prechwait		= 4'hC, 
-		s_arefwait 		= 4'hD;
-reg [1:0]lmod;
-reg init_done;
-reg [1:0] i_cmd;
 
 always @(posedge clk or negedge rst2)
    		  
@@ -321,34 +365,6 @@ always @(posedge clk or negedge rst2)
 	  end
 	end	
 		
-
-wire  w_powerup 	= (state == s_powerup);
-wire  w_wait		= (state == s_wait );
-wire  w_prech		= (state == s_prech);
-wire  w_aref		= (state == s_aref);
-wire  w_lmreg		= (state == s_lmreg);
-wire  w_idle 		= (state == s_idle);
-wire  w_burstx		= (state == s_burstx);
-
-wire [1:0]lmod1 	= lmod;
-wire  lmodChk		= (sdr_sel) ? (lmod1 == 2'b01):(lmod1 == 2'b10);
-
-assign  extMR		= (lmod == 2'b01)& w_lmreg;
-
-
-reg 			waitcnt_st,trp_st,trca_st,
-    			tras_st,burst1,burst2,burst3;
-reg [1:0]		arefcnt;
-
-reg [3:0] 		i_cnt,trca_cnt,tras_cnt,
-	  		trp_cnt,state,n_state;
-reg 			trp_end1;
-reg		 	tras_end1,
-    			wr_req1,wr_req2,wr_req3;
-reg 			init_done1,init_done2,init_done3,init_done4,
-			sdr_reqD,StRef;
-reg [15:0]		w_cnt;
-
 always @(negedge clk)
  begin	
 	sdr_reqD	<= sdr_req;
@@ -490,10 +506,10 @@ always @(posedge clk or negedge rst2)
 		  (w_burstx)	?	`C_BURST_STOP		:
 		  (w_idle)	?	`C_NOP			:  `C_NOP;
 
-wire  wait_end   = (sdr_sel) ? (w_cnt == `DLY4SDR) :(w_cnt == `DLY4DDR);
+assign  wait_end   = (sdr_sel) ? (w_cnt == `DLY4SDR) :(w_cnt == `DLY4DDR);
 assign trca_end  = (trca_cnt == sdr_trca_d)  	  	? 1'b1 : 1'b0;
-wire  tras_end   = (tras_cnt == sdr_tras_d)	  	? 1'b1 : 1'b0;
-wire  trp_end    = (trp_cnt  == sdr_trp_d)	  	? 1'b1 : 1'b0;
+assign  tras_end   = (tras_cnt == sdr_tras_d)	  	? 1'b1 : 1'b0;
+assign  trp_end    = (trp_cnt  == sdr_trp_d)	  	? 1'b1 : 1'b0;
 wire  init_doneW = (sdr_sel) ? init_done2 :init_done4;
 
 wire [8:0]blx 	= (init_done1) ? (
@@ -508,7 +524,7 @@ wire [8:0]bly	= (sdr_sel) ? (blx) : ({blx[0],blx[8:1]});
 wire [8:0]bl	= (sdr_sel) ? ((sdr_req_wr_n) ? bly : (bly-9'h1)) : bly;
 //					  ((bly===9'h01)  ? (bly-9'h1) : bly);
 
-wire burstp  	= (sdr_mode_reg[2:0] == 3'b111) ? 1'b1 : 1'b0;
+assign burstp  	= (sdr_mode_reg[2:0] == 3'b111) ? 1'b1 : 1'b0;
 //wire ref_rst 	= (w_aref) ? 1'b1 : 1'b0;
 wire wr_chk 	= ((wr_req1 !== wr_req3)&&(wen || ren)) ? 1'b1 :1'b0;
 wire sdr_reqW 	= (sdr_mode_reg[2:0] == 3'b000) ? sdr_req : sdr_reqD;
@@ -594,17 +610,6 @@ state BA3(
 	);
 
 //==========================================================================================//
-
-//wire rdAdr0,rdAdr1,rdAdr2,rdAdr3;
-wire [2:0]cmdBA,cmdBA0,cmdBA1,cmdBA2,cmdBA3;
-wire StWrRd,wrNxt;
-wire 	write_en0,write_en1,write_en2,write_en3,
-	read_en0,read_en1,read_en2,read_en3,
-	rowAdrB0,rowAdrB1,rowAdrB2,rowAdrB3,
-	StWrRd0,StWrRd1,StWrRd2,StWrRd3,
-	wrNxt0,wrNxt1,wrNxt2,wrNxt3;
-
-wire [7:0]BstNumX0,BstNumX1,BstNumX2,BstNumX3,BstNumI;
 
 //assign BstNumI = BstNumX0|BstNumX1|BstNumX2|BstNumX3;
 

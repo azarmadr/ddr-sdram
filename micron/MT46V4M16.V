@@ -904,7 +904,7 @@ wire Debug = 0;
 //		      tIH =  1.1,                                     // Input Hold Time
 //		      tIS =  1.1;                                     // Input Setup Time
        // Timing Check for 133 MHz Devices
-    specify
+    /*specify
         specparam
                     tCH =  3.37,                                     // Clock High-Level Width
                     tCL =  3.37,                                     // Clock Low-Level Width
@@ -928,7 +928,7 @@ wire Debug = 0;
         $setuphold(negedge Dq_in, Dq,    tDS, tDH);
         $setuphold(posedge Dq_in, Dm,    tDS, tDH);
         $setuphold(negedge Dq_in, Dm,    tDS, tDH);
-    endspecify
+    endspecify*/
 
 endmodule
 

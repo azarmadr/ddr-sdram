@@ -875,7 +875,7 @@ wire Debug = 0;
     endtask
 
     // Timing Parameters for -75 (PC133) and CAS Latency = 2
-    specify
+    /*specify
         specparam
                     tAH  =  0.8,                                        // Addr, Ba Hold Time
                     tAS  =  1.5,                                        // Addr, Ba Setup Time
@@ -902,7 +902,7 @@ wire Debug = 0;
         $setuphold(posedge Clk,    Ba,    tAS,  tAH);
         $setuphold(posedge Clk,    Dqm,   tCMS, tCMH);
         $setuphold(posedge Dq_chk, Dq,    tDS,  tDH);
-    endspecify
+    endspecify*/
 
 endmodule
 

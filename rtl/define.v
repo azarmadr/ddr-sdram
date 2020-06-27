@@ -30,6 +30,6 @@
  `define BANK1                	2'b01
  `define BANK2                	2'b10
  `define BANK3                	2'b11
-							     //			        for 100Mhz sdc_clk
- `define DLY4SDR				16'h0020 //16'H2710 //Initial delay B4 any command -100uS/10nS = 10,000 = 2710h
- `define DLY4DDR				16'h0030 //16'H4E20 // --------"------------------ -200uS/10nS = 20.000 = 4E20h
+//for 100Mhz sdc_clk
+ `define DLY4SDR		16'h0020 //16'H2710 //Initial delay B4 any command -100uS/10nS = 10,000 = 2710h
+ `define DLY4DDR		16'h0030 //16'H4E20 // --------"------------------ -200uS/10nS = 20.000 = 4E20h

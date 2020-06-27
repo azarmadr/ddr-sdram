@@ -15,7 +15,7 @@
 //	        			                                   //
 /////////////////////////////////////////////////////////////////////////////
 
-
+`include"define.v"
 module sdc_agent(
 
    //.....outputs......
@@ -213,7 +213,10 @@ begin
 	sdc_req_ack1 <= #SClkTP sdc_req_ack;
 	sdc_req_ack2 <= #SClkTP sdc_req_ack1;
 end
+/*
+always @(mclk)begin //edit by madr
 
+*/
 always @(posedge sdc_req_ack)
 	sdc_req = 1'b0;
 
@@ -283,48 +286,45 @@ if(debug)
 endtask
 
 //-------------------------------------------------//
- task sdram_write;
-  input [22:0]addr;
-  input [1:0]req_len;
-  integer l,m;
-  reg [3:0]bt;
-  begin			  
-	 sdc_req_len		= req_len;
-	{sdc_req,sdc_req_wr_n} = 2'b10;
- 	 sdc_req_adr	 	= addr;
-         bt = req_len+1'b1;
-if(debug)
-$display("\t\t+------------------------+\n\t\t|REQ.LEN-%d BEAT-%d:WRITE |\n\t\t+------------------------+",req_len,bt);
+task sdram_write;
+   input [22:0]addr;
+   input [1:0]req_len;
+   integer l,m;
+   reg [3:0]bt;
+   begin
+      sdc_req_len		= req_len;
+      {sdc_req,sdc_req_wr_n} = 2'b10;
+      sdc_req_adr	 	= addr;
+      bt = req_len+1'b1;
+      if(debug)
+	 $display("\t\t+------------------------+\n\t\t|REQ.LEN-%d BEAT-%d:WRITE |\n\t\t+------------------------+",req_len,bt);
 
-wait(sdc_wr_next);
+      wait(sdc_wr_next);
 
 
-if(!burstPage)
-begin
-
-  for(l=0;l<bustN;l=l+1)
-  begin
-					
-    for(m=0;m<bl;m=m+1)
+      if(!burstPage)
       begin
-     @(posedge sdc_clk)//!!
-	sdc_wr_data  = m;
-//	mem_wr[k]    = k;
-//        #SClkTP;
-      end	
-  end
-end
-else    for(m=0;m<Plen;m=m+1)
-      begin
-     @(posedge sdc_clk)//!!
-	sdc_wr_data  = m;
-//        #SClkTP;
-      end	
 
+	 for(l=0;l<bustN;l=l+1)
+	 begin
+
+	    for(m=0;m<bl;m=m+1)
+	    begin
+	       @(posedge sdc_clk)//!!
+	       sdc_wr_data  = m;
+	       //	mem_wr[k]    = k;
+	       //        #SClkTP;
+	    end	
+	 end
+      end
+      else    for(m=0;m<Plen;m=m+1)
+      begin
+	 @(posedge sdc_clk)//!!
+	 sdc_wr_data  = m;      //        #SClkTP;
+      end	
 //  #300;
-
-  end
- endtask
+   end
+endtask
 //-------------------------------------------------//
  task sdram_read;
   input [22:0]addr;
@@ -501,26 +501,26 @@ else    for(m=0;m<Plen;m=m+1)
 `include "Testcases/test_46_Read_1beat_4banks.v"
 `include "Testcases/test_47_Write_1beat_2banks.v"
 `include "Testcases/test_48_Read_1beat_2banks.v"
-`include "Testcases/test_49_WriteB0_at_endof_row.v"
-`include "Testcases/test_50_WriteB1_at_endof_row.v" 
-`include "Testcases/test_51_WriteB2_at_endof_row.v"
-`include "Testcases/test_52_WriteB3_at_endof_row.v" 
-`include "Testcases/test_53_ReadB0_at_endof_row.v" 
-`include "Testcases/test_54_ReadB1_at_endof_row.v" 
-`include "Testcases/test_55_ReadB2_at_endof_row.v" 
-`include "Testcases/test_56_ReadB3_at_endof_row.v" 
-`include "Testcases/test_57_WriteB0_at_end_row.v" 
-`include "Testcases/test_58_WriteB1_at_end_row.v" 
-`include "Testcases/test_59_WriteB2_at_end_row.v" 
-`include "Testcases/test_60_WriteB3_at_end_row.v" 
-`include "Testcases/test_61_ReadB0_at_end_row.v" 
-`include "Testcases/test_62_ReadB1_at_end_row.v" 
-`include "Testcases/test_63_ReadB2_at_end_row.v" 
-`include "Testcases/test_64_ReadB3_at_end_row.v" 
+//`include "Testcases/test_49_WriteB0_at_endof_row.v"
+//`include "Testcases/test_50_WriteB1_at_endof_row.v" 
+//`include "Testcases/test_51_WriteB2_at_endof_row.v"
+//`include "Testcases/test_52_WriteB3_at_endof_row.v" 
+//`include "Testcases/test_53_ReadB0_at_endof_row.v" 
+//`include "Testcases/test_54_ReadB1_at_endof_row.v" 
+//`include "Testcases/test_55_ReadB2_at_endof_row.v" 
+//`include "Testcases/test_56_ReadB3_at_endof_row.v" 
+//`include "Testcases/test_57_WriteB0_at_end_row.v" 
+//`include "Testcases/test_58_WriteB1_at_end_row.v" 
+//`include "Testcases/test_59_WriteB2_at_end_row.v" 
+//`include "Testcases/test_60_WriteB3_at_end_row.v" 
+//`include "Testcases/test_61_ReadB0_at_end_row.v" 
+//`include "Testcases/test_62_ReadB1_at_end_row.v" 
+//`include "Testcases/test_63_ReadB2_at_end_row.v" 
+//`include "Testcases/test_64_ReadB3_at_end_row.v" 
 
 initial
 begin
-
+$display("a");
 chk = 1'b0; 
 
 `ifdef t1
@@ -830,22 +830,23 @@ test45;
 test46;
 test47;
 test48;
-test49;
-test50;
-test51;
-test52;
-test53;
-test54;
-test55;
-test56;
-test57;
-test58;
-test59;
-test60;
-test61;
-test62;
-test63;
-test64;
+//test49;
+//test50;
+//test51;
+//test52;
+//test53;
+//test54;
+//test55;
+//test56;
+//test57;
+//test58;
+//test59;
+//test60;
+//test61;
+//test62;
+//test63;
+//test64;
+`endif
 `endif
 `endif
 `endif
@@ -921,13 +922,8 @@ end
 initial
 begin
           `ifdef DUMPVCD
-              $dumpfile("sdram_read_write_test1.vcd");
+              $dumpfile("sdram.vcd");
               $dumpvars();
            `endif
 end
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!//
-
-
-
 endmodule
