@@ -8,4 +8,4 @@ transcript
 *.vcd
 Session.vim
 o.txt
-.gitignore
+sysC-sim/obj_dir/*
