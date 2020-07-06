@@ -45,7 +45,7 @@
 
 // DO NOT CHANGE THE TIMESCALE
 // MAKE SURE YOUR SIMULATOR USE "PS" RESOLUTION
-//`timescale 1ns / 1ps
+`timescale 1ns / 1ps
 
 module mt46v4m16 (Dq, Dqs, Addr, Ba, Clk, Clk_n, Cke, Cs_n, Ras_n, Cas_n, We_n, Dm);
 
@@ -187,15 +187,13 @@ wire Debug = 0;
         $timeformat (-9, 1, " ns", 12);
     end
 
-    // System Clock
-    always begin
-        @ (posedge Clk) begin
-            Sys_clk = CkeZ;
-            CkeZ = Cke;
-        end
-        @ (negedge Clk) begin
-            Sys_clk = 1'b0;
-        end
+    //_System_Clock__modified_for_verilator
+    always @ (posedge Clk) begin
+      Sys_clk = CkeZ;
+      CkeZ = Cke;
+    end
+    always @ (negedge Clk) begin
+      Sys_clk = 1'b0;
     end
 
     always @ (Sys_clk) begin
@@ -778,7 +776,7 @@ wire Debug = 0;
     endtask
 
     // Read or Write command waiting for posedge DQS
-    always @ (Rw_command) begin
+    always @ (Rw_command or Sys_clk or posedge Dqs) begin//edited_by_SAM
         if (Rw_command === `READ || Rw_command === `READ_A) begin
             Latch_address;
             @ (Sys_clk);

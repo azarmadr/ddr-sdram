@@ -242,6 +242,7 @@ wire DrdOvf =  (bl==9'h02) ? ((!sdr_req_wr_n) ? (AdrCnt >= DDRCOLS-12'h003):(Adr
 	3'h2 :{next_burst_p,next_burst_2,next_burst_4,next_burst_8} <= 4'h2;
 	3'h3 :{next_burst_p,next_burst_2,next_burst_4,next_burst_8} <= 4'h1;
 	3'h7 :{next_burst_p,next_burst_2,next_burst_4,next_burst_8} <= 4'h8;
+	default: ;
      endcase
    end 
  end

@@ -1,7 +1,5 @@
-
-
 task test3;
-/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 parameter 	SDR_ModCas3BL2 	= 12'h031;
 
@@ -38,7 +36,7 @@ wait(sdc_req_ack2);
 sdram_write(ADDRESS2,REQLEN1);
 
 wait(sdc_req_ack2);
-sdram_write(ADDRESS3,REQLEN0); 
+sdram_write(ADDRESS3,REQLEN0);
 
 wait(sdc_req_ack2);
 sdram_read(ADDRESS0,REQLEN3);
@@ -73,7 +71,7 @@ wait(sdc_req_ack2);
 sdram_read(ADDRESS2,REQLEN1);
 
 wait(sdc_req_ack2);
-sdram_write(ADDRESS3,REQLEN0); 
+sdram_write(ADDRESS3,REQLEN0);
 
 wait(sdc_req_ack2);
 sdram_read(ADDRESS3,REQLEN0);
@@ -85,7 +83,5 @@ sdram_read(ADDRESS3,REQLEN0);
 `ifdef all
 		reset_sdr;
 `endif
-   
    end
 endtask
-

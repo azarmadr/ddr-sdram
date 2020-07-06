@@ -6,12 +6,12 @@
 //                  Himayat Nagar Hyderabad. India.  011-91-40-4076669     //
 //     									   //
 /////////////////////////////////////////////////////////////////////////////
-// Filename: sdc_agent.v                                                   //        
+// Filename: sdc_agent.v                                                   //
 //		  							   //
 // Author: Saji Sebastian              				           //
 //     									   //
 // Description : Agent File     		                           //
-// Rev1.4     : 19 August 2002    				           //	
+// Rev1.4     : 19 August 2002    				           //
 //	        			                                   //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@ module sdc_agent(
    sdc_cas,sdc_trca_d,sdc_twr_d,sdc_rfrsh,sdc_rfmax,sdc_sel,
 
    //.....inputs.......
-   sdc_clk, sdc_req_ack,sdc_rd_data, sdc_rd_valid,  
+   sdc_clk, sdc_req_ack,sdc_rd_data, sdc_rd_valid,
    sdc_wr_next,sdc_init_done
 
 	);
@@ -32,7 +32,7 @@ module sdc_agent(
   output		mclk,
 			s_resetn,
 			sdc_req;
-  output [`U_ADDR_MSB:0] 
+  output [`U_ADDR_MSB:0]
 			sdc_req_adr;
   output	[1:0]	sdc_req_len;
   output		sdc_req_wr_n;
@@ -49,13 +49,13 @@ module sdc_agent(
   output  [3:0]		sdc_tras_d,
 			sdc_trp_d,
 			sdc_trcd_d;
-  output  [2:0]		sdc_cas;    
+  output  [2:0]		sdc_cas;
 
-  output  [3:0]		sdc_trca_d,	
+  output  [3:0]		sdc_trca_d,
 			sdc_twr_d;
   output  [11:0]	sdc_rfrsh;
   output  [2:0]		sdc_rfmax;
-  output 		sdc_sel;  
+  output 		sdc_sel;
 
   input [`U_DATA_MSB:0]
          		sdc_rd_data;
@@ -71,7 +71,7 @@ module sdc_agent(
   reg		mclk,
 		s_resetn,
 		sdc_req;
-  reg [`U_ADDR_MSB:0] 
+  reg [`U_ADDR_MSB:0]
 		sdc_req_adr;
   reg	[1:0]	sdc_req_len;
   reg		sdc_req_wr_n;
@@ -88,13 +88,13 @@ module sdc_agent(
   reg  [3:0]	sdc_tras_d,
 		sdc_trp_d,
 		sdc_trcd_d;
-  reg  [2:0]	sdc_cas;    
+  reg  [2:0]	sdc_cas;
 
-  reg  [3:0]	sdc_trca_d,	
+  reg  [3:0]	sdc_trca_d,
 		sdc_twr_d;
   reg  [11:0]	sdc_rfrsh;
   reg  [2:0]	sdc_rfmax;
-  reg 		sdc_sel;  
+  reg 		sdc_sel;
 
   wire [`U_DATA_MSB:0]
          	sdc_rd_data;
@@ -103,11 +103,11 @@ module sdc_agent(
   wire		sdc_req_ack,
 		sdc_rd_valid,
 		sdc_wr_next,sdc_clk;
-  integer 	j,k;     
+  integer 	j,k;
 
 reg  [31:0]mem_wr[0:511];
 reg  [31:0]mem_rd[0:511];
-reg [7:0]bl;
+reg [3:0]bl;
 
 `ifdef debug
 wire debug = 1;
@@ -179,8 +179,7 @@ parameter	REQLEN3 		= 4'h3,
 
 wire [1:0]sft	 = (bl==4'h8) ? 2'b11:
 		   (bl==4'h4) ? 2'b10:
-		   (bl==4'h2) ? 2'b01:
-		   (bl==4'h1) ? 2'b00:2'b00;
+		   (bl==4'h2) ? 2'b01:2'b00;
 reg [2:0]beat;
 reg [7:0]byte;
 reg [7:0]bustNT;
@@ -189,18 +188,18 @@ reg sdc_req_ack1,sdc_req_ack2,chk;
 
 wire burstPage = (sdc_mode_reg[2:0] == 3'b111);
 
-wire [7:0]Plen  = 	(burstPage) ?
+wire [7:0]Plen  = 	(burstPage)           ?
 			((sdc_req_len==2'b00) ? 8'h04 :
-		  	(sdc_req_len==2'b01) ? 8'h08 :
-		  	(sdc_req_len==2'b10) ? 8'h10 :
-		  	(sdc_req_len==2'b11) ? 8'h20 : 8'h10) :8'h00;
+		  	(sdc_req_len==2'b01)  ? 8'h08 :
+		  	(sdc_req_len==2'b10)  ? 8'h10 :
+		  	(sdc_req_len==2'b11)  ? 8'h20 : 8'h10) :8'h00;
 always @(mclk)
 begin
-        	bl   = (sdc_mode_reg[2:0] == 3'b000) ? 8'h1 :
-			   (sdc_mode_reg[2:0] == 3'b001) ? 8'h2 :
- 	               (sdc_mode_reg[2:0] == 3'b010) ? 8'h4 : 
-             	 	   (sdc_mode_reg[2:0] == 3'b011) ? 8'h8 :
-	               (sdc_mode_reg[2:0] == 3'b111) ? 8'hff : 8'h8;
+        	bl   =      ( sdc_mode_reg[2:0] == 3'b000) ? 4'h1 :
+			    ( sdc_mode_reg[2:0] == 3'b001) ? 4'h2 :
+ 	                    ( sdc_mode_reg[2:0] == 3'b010) ? 4'h4 :
+             	 	    ( sdc_mode_reg[2:0] == 3'b011) ? 4'h8 :
+	                    ( sdc_mode_reg[2:0] == 3'b111) ? 4'hff : 4'h8;
 
 		beat	 	= sdc_req_len + 3'b001;	//# of beat = len + 1
 		byte   	= (8'h08)  << beat;
@@ -213,10 +212,7 @@ begin
 	sdc_req_ack1 <= #SClkTP sdc_req_ack;
 	sdc_req_ack2 <= #SClkTP sdc_req_ack1;
 end
-/*
-always @(mclk)begin //edit by madr
 
-*/
 always @(posedge sdc_req_ack)
 	sdc_req = 1'b0;
 
@@ -224,17 +220,17 @@ wire [`U_ADDR_MSB:`U_ADDR_MSB-1]bankAdr;
 wire [`U_ADDR_MSB-2:`COL_ADDR_MSB]rowAdr;
 wire [`COL_ADDR_MSB-1:0] colAdr;
 
-assign {bankAdr,rowAdr,colAdr}=sdc_req_adr; 
+assign {bankAdr,rowAdr,colAdr}=sdc_req_adr;
 
 
 //-------generate clock-------------
 
-always 
+always
 	#ClkHP mclk = ~mclk;
 
  task initialize_sdr_ddr;
    input [11:0]mod_reg;
-   input sel;	
+   input sel;
    begin
 if(debug)
    $display("\t\t+---------------------+\n\t\t| INITIALIZING SDRAM  |\n\t\t+---------------------+");
@@ -249,16 +245,16 @@ if(debug)
 		sdc_wr_data		<= 32'h0000;
   		sdc_wr_en_n		<= 4'h0;
 		sdc_en			<= 1'b1;
-		
+
   		sdc_mode_reg	        <= 12'h000;
   		sdc_tras_d		<=	4'hF;
 		sdc_trp_d		<=	4'h8;
 		sdc_trcd_d		<=	4'h3;
 //  		sdc_cas			<=	3'b011;
 
-  		sdc_trca_d		<=	4'hA;	
+  		sdc_trca_d		<=	4'hA;
 		sdc_twr_d		<=	4'h2;
-	 	sdc_sel			<=  sel;  	
+	 	sdc_sel			<=  sel;
   		sdc_rfrsh		<=	12'h07f;//61B;//-1563-clk cycS for 15.625uS//(sel) ? 12'h001f : 12'h00f;
   		sdc_rfmax		<=	3'b011;
 	   #MClkTP s_resetn  = 1'b1;
@@ -267,10 +263,12 @@ if(debug)
 
 //#(10420*SClkTP);
 wait(sdc_init_done);
-	sdc_mode_reg     =  (sdc_init_done) ? mod_reg :12'h000;
+	sdc_mode_reg     =  (sdc_init_done) ? mod_reg :12'h000;//_is_necessary?
 	sdc_cas			 = sdc_mode_reg[6:4];
 #SClkTP;
-   end
+#SClkTP;
+#SClkTP;
+end
  endtask
 
 //-------------------------------------------------//
@@ -292,73 +290,73 @@ task sdram_write;
    integer l,m;
    reg [3:0]bt;
    begin
-      sdc_req_len		= req_len;
+      sdc_req_len            = req_len;
+      sdc_req_adr            = addr;
+      repeat(3) @(posedge sdc_clk);
       {sdc_req,sdc_req_wr_n} = 2'b10;
-      sdc_req_adr	 	= addr;
       bt = req_len+1'b1;
-      if(debug)
-	 $display("\t\t+------------------------+\n\t\t|REQ.LEN-%d BEAT-%d:WRITE |\n\t\t+------------------------+",req_len,bt);
+      if(debug) $display("\t\t+------------------------+\n\t\t|REQ.LEN-%d BEAT-%d:WRITE |\n\t\t+------------------------+",req_len,bt);
 
       wait(sdc_wr_next);
 
 
+//while(sdc_wr_next)begin
       if(!burstPage)
       begin
 
 	 for(l=0;l<bustN;l=l+1)
 	 begin
-
 	    for(m=0;m<bl;m=m+1)
 	    begin
-	       @(posedge sdc_clk)//!!
-	       sdc_wr_data  = m;
-	       //	mem_wr[k]    = k;
-	       //        #SClkTP;
-	    end	
+	       sdc_wr_data  = m+l*8;
+	       @(posedge sdc_clk);//!!
+	       #SClkTP;
+	    end
 	 end
       end
       else    for(m=0;m<Plen;m=m+1)
       begin
 	 @(posedge sdc_clk)//!!
-	 sdc_wr_data  = m;      //        #SClkTP;
-      end	
-//  #300;
+	 sdc_wr_data  = m;
+         //#SClkTP;
+      end
+//   end
+   #SClkTP;
    end
 endtask
+//always@(posedge sdc_rd_valid) $display("\nsdc.rd.valid@",$time);
+//always@(posedge sdc_wr_next) $display("\nsdc.wr.next@",$time);
+//always@(posedge sdc_req_ack) $display("\nsdc.req.ack@",$time);
+//always@(negedge sdc_req_ack) $display("\nsdc.req.ack@",$time);
 //-------------------------------------------------//
- task sdram_read;
-  input [22:0]addr;
-  input [1:0]req_len;
-  integer l,m;
-  reg [3:0]bt;
-  begin			  
-	 sdc_req_len		= req_len;
-	{sdc_req,sdc_req_wr_n} = 2'b11;
- 	 sdc_req_adr	 	= addr;
-	 bt = req_len+1'b1;
-if(debug)
-$display("\t\t+-----------------------+\n\t\t|REQ.LEN-%d BEAT-%d:READ |\n\t\t+-----------------------+",req_len,bt);
-#100;
-
-if(!burstPage)
-begin	 
-for(l=0;l<bustN;l=l+1)
-  begin
-    for(m=0;m<bl;m=m+1)
+task sdram_read;
+   input [22:0]addr;
+   input [1:0]req_len;
+   integer l,m;
+   reg [3:0]bt;
+   begin
+   sdc_req_len		= req_len;
+   sdc_req_adr	 	= addr;
+      @(posedge sdc_clk)
+   {sdc_req,sdc_req_wr_n} = 2'b11;
+   bt = req_len+1'b1;
+   #SClkTP;
+   if(debug)
+      $display("\t\t+-----------------------+\n\t\t|REQ.LEN-%d BEAT-%d:READ |\n\t\t+-----------------------+",req_len,bt);
+wait(sdc_rd_valid);
+while(sdc_rd_valid)begin
+   if(!burstPage)
+   begin
+      for(l=0;l<1;l=l+1)//bustN;l=l+1)
       begin
-	sdc_wr_data  = m;
-//	mem_wr[k]    = k;
-        #SClkTP;
-      end	
-  end
+	 for(m=0;m<bl;m=m+1)begin
+	    #SClkTP;
+	 end
+      end
+   end
+   else    for(m=0;m<Plen;m=m+1)#SClkTP;
 end
-else    for(m=0;m<Plen;m=m+1)
-      begin
-	sdc_wr_data  = m;
-        #SClkTP;
-      end	
-
-  end
+end
  endtask
 
 
@@ -369,30 +367,29 @@ else    for(m=0;m<Plen;m=m+1)
   input [3:0] DM;
   integer l,m;
   reg [3:0]bt;
-  begin	
-         sdc_wr_en_n            = DM;		  
+  begin
+         sdc_wr_en_n            = DM;
 	 sdc_req_len		= req_len;
 	{sdc_req,sdc_req_wr_n} = 2'b10;
  	 sdc_req_adr	 	= addr;
          bt = req_len+1'b1;
-if(debug)
-$display("\t\t+----------------------------+\n\t\t|REQ.LEN-%d BEAT-%d:WRITE DM-%d|\n\t\t+----------------------------+",req_len,bt,sdc_wr_en_n);
+	 if(debug)
+	    $display("\t\t+----------------------------+\n\t\t|REQ.LEN-%d BEAT-%d:WRITE DM-%d|\n\t\t+----------------------------+",req_len,bt,sdc_wr_en_n);
 wait(sdc_wr_next);
 
 
 if(!burstPage)
 begin
+   for(l=0;l<bustN;l=l+1)
+   begin
 
-  for(l=0;l<bustN;l=l+1)
-  begin
-					
-    for(m=0;m<bl;m=m+1)
-      begin
+     for(m=0;m<bl;m=m+1)
+     begin
      @(posedge sdc_clk)//!!
 	sdc_wr_data  = m;
-//	mem_wr[k]    = k;
-//        #SClkTP;
-      end	
+     //	mem_wr[k]    = k;
+     #SClkTP;
+      end
   end
 end
 else    for(m=0;m<Plen;m=m+1)
@@ -400,7 +397,7 @@ else    for(m=0;m<Plen;m=m+1)
      @(posedge sdc_clk)//!!
 	sdc_wr_data  = m;
 //        #SClkTP;
-      end	
+      end
 
 //  #300;
 
@@ -413,8 +410,8 @@ else    for(m=0;m<Plen;m=m+1)
   input [3:0] DM;
   integer l,m;
   reg [3:0]bt;
-  begin	
-         sdc_wr_en_n            = DM;		  
+  begin
+         sdc_wr_en_n            = DM;
 	 sdc_req_len		= req_len;
 	{sdc_req,sdc_req_wr_n} = 2'b11;
  	 sdc_req_adr	 	= addr;
@@ -424,7 +421,7 @@ $display("\t\t+-----------------------------+\n\t\t|REQ.LEN-%d BEAT-%d:READ DM-%
 #100;
 
 if(!burstPage)
-begin	 
+begin
 for(l=0;l<bustN;l=l+1)
   begin
     for(m=0;m<bl;m=m+1)
@@ -432,14 +429,14 @@ for(l=0;l<bustN;l=l+1)
 	sdc_wr_data  = m;
 //	mem_wr[k]    = k;
         #SClkTP;
-      end	
+      end
   end
 end
 else    for(m=0;m<Plen;m=m+1)
       begin
 	sdc_wr_data  = m;
         #SClkTP;
-      end	
+      end
 
   end
  endtask
@@ -474,20 +471,20 @@ else    for(m=0;m<Plen;m=m+1)
 `include "Testcases/test19_Dc25bl2.v"
 `include "Testcases/test20_Dc3bl8rwEnd.v"
 `include "Testcases/test21_Sc3bl8rwEnd.v"
-`include "Testcases/test22_BL2_Interleaved_CAS1.v"  
+`include "Testcases/test22_BL2_Interleaved_CAS1.v"
 `include "Testcases/test23_BL2_Interleaved_CAS2.v"
-`include "Testcases/test24_BL2_Interleaved_CAS3.v"  
-`include "Testcases/test25_BL4_Interleaved_CAS3.v"  
-`include "Testcases/test26_BL4_Interleaved_CAS2.v"  
-`include "Testcases/test27_BL4_Interleaved_CAS1.v"  
-`include "Testcases/test28_BL8_Interleaved_CAS2.v"  
+`include "Testcases/test24_BL2_Interleaved_CAS3.v"
+`include "Testcases/test25_BL4_Interleaved_CAS3.v"
+`include "Testcases/test26_BL4_Interleaved_CAS2.v"
+`include "Testcases/test27_BL4_Interleaved_CAS1.v"
+`include "Testcases/test28_BL8_Interleaved_CAS2.v"
 `include "Testcases/test29_BL8_Interleaved_CAS1.v"
-`include "Testcases/test30_BL8_Interleaved_CAS3.v" 
-`include "Testcases/test31_BL2_Sequential_CAS1.v" 
+`include "Testcases/test30_BL8_Interleaved_CAS3.v"
+`include "Testcases/test31_BL2_Sequential_CAS1.v"
 `include "Testcases/test32_BL2_Sequential_CAS2.v"
-`include "Testcases/test33_BL2_Sequential_CAS3.v" 
-`include "Testcases/test34_BL4_Sequential_CAS1.v" 
-`include "Testcases/test35_BL4_Sequential_CAS2.v" 
+`include "Testcases/test33_BL2_Sequential_CAS3.v"
+`include "Testcases/test34_BL4_Sequential_CAS1.v"
+`include "Testcases/test35_BL4_Sequential_CAS2.v"
 `include "Testcases/test36_BL4_Sequential_CAS3.v"
 `include "Testcases/test37_BL8_Sequential_CAS1.v"
 `include "Testcases/test38_BL8_Sequential_CAS2.v"
@@ -502,26 +499,25 @@ else    for(m=0;m<Plen;m=m+1)
 `include "Testcases/test_47_Write_1beat_2banks.v"
 `include "Testcases/test_48_Read_1beat_2banks.v"
 //`include "Testcases/test_49_WriteB0_at_endof_row.v"
-//`include "Testcases/test_50_WriteB1_at_endof_row.v" 
+//`include "Testcases/test_50_WriteB1_at_endof_row.v"
 //`include "Testcases/test_51_WriteB2_at_endof_row.v"
-//`include "Testcases/test_52_WriteB3_at_endof_row.v" 
-//`include "Testcases/test_53_ReadB0_at_endof_row.v" 
-//`include "Testcases/test_54_ReadB1_at_endof_row.v" 
-//`include "Testcases/test_55_ReadB2_at_endof_row.v" 
-//`include "Testcases/test_56_ReadB3_at_endof_row.v" 
-//`include "Testcases/test_57_WriteB0_at_end_row.v" 
-//`include "Testcases/test_58_WriteB1_at_end_row.v" 
-//`include "Testcases/test_59_WriteB2_at_end_row.v" 
-//`include "Testcases/test_60_WriteB3_at_end_row.v" 
-//`include "Testcases/test_61_ReadB0_at_end_row.v" 
-//`include "Testcases/test_62_ReadB1_at_end_row.v" 
-//`include "Testcases/test_63_ReadB2_at_end_row.v" 
-//`include "Testcases/test_64_ReadB3_at_end_row.v" 
+//`include "Testcases/test_52_WriteB3_at_endof_row.v"
+//`include "Testcases/test_53_ReadB0_at_endof_row.v"
+//`include "Testcases/test_54_ReadB1_at_endof_row.v"
+//`include "Testcases/test_55_ReadB2_at_endof_row.v"
+//`include "Testcases/test_56_ReadB3_at_endof_row.v"
+//`include "Testcases/test_57_WriteB0_at_end_row.v"
+//`include "Testcases/test_58_WriteB1_at_end_row.v"
+//`include "Testcases/test_59_WriteB2_at_end_row.v"
+//`include "Testcases/test_60_WriteB3_at_end_row.v"
+//`include "Testcases/test_61_ReadB0_at_end_row.v"
+//`include "Testcases/test_62_ReadB1_at_end_row.v"
+//`include "Testcases/test_63_ReadB2_at_end_row.v"
+//`include "Testcases/test_64_ReadB3_at_end_row.v"
 
 initial
 begin
-$display("a");
-chk = 1'b0; 
+chk = 1'b0;
 
 `ifdef t1
 test1;
@@ -925,5 +921,6 @@ begin
               $dumpfile("sdram.vcd");
               $dumpvars();
            `endif
+	   #9333 $finish;
 end
 endmodule

@@ -15,6 +15,7 @@
 //	        			                                   //
 /////////////////////////////////////////////////////////////////////////////
 
+`include"define.v"
 module ref_chk(
 
    // -Outputs-
@@ -101,8 +102,9 @@ begin
 end
 assign clk     = cnt[0];
 assign clk2x   = mclk;
-assign ReqAckL	= (req_ack) ? 1'b1 :(sdr_req) ? 1'b0 :
-   (!init_done) ? 1'b0 : ReqAckL;
+wire veri_ReqAckL;
+assign veri_ReqAckL = ReqAckL;
+assign ReqAckL	= (req_ack) ? 1'b1 :(sdr_req) ? 1'b0 : (!init_done) ? 1'b0 : veri_ReqAckL;
 
 
 always @(posedge clk)

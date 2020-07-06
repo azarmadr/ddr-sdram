@@ -1,10 +1,7 @@
-
-
-
 task test1;
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-parameter 	SDR_ModCas3BLP 	= 12'h037,SDR_ModCas3BL8 	= 12'h023;
+parameter 	SDR_ModCas3BL8 	= 12'h023;
 
 parameter 	MClkTP 			= 10,
    SClkTP 			= 20,
@@ -29,31 +26,82 @@ $display("\t\t+---------------------+\n\t\t|   test1_Sc3bl8.v    |\n\t\t+-------
 initialize_sdr_ddr(SDR_ModCas3BL8,1'b1); // sel = 1 for sdram
 
 `ifdef mod1		//FOR READS AFTER ALL WRITES
-
+   fork
+wait(sdc_req_ack2);
 sdram_write(ADDRESS0,REQLEN3);
+join
+   fork
+wait(sdc_req_ack2);
 sdram_write(ADDRESS1,REQLEN2);
+join
+   fork
+wait(sdc_req_ack2);
 sdram_write(ADDRESS2,REQLEN1);
+join
+   fork
+wait(sdc_req_ack2);
 sdram_write(ADDRESS3,REQLEN0);
+join
+   fork
+wait(sdc_req_ack2);
 
 sdram_read(ADDRESS0,REQLEN3);
+join
+   fork
+wait(sdc_req_ack2);
 sdram_read(ADDRESS1,REQLEN2);
+join
+   fork
+wait(sdc_req_ack2);
 sdram_read(ADDRESS2,REQLEN1);
+join
+   fork
+wait(sdc_req_ack2);
 sdram_read(ADDRESS3,REQLEN0);
+join
 
 
 `else
 
-sdram_write(ADDRESS0,REQLEN3);
-sdram_read(ADDRESS0,REQLEN3);
+   fork
+      wait(sdc_req_ack2);
+      sdram_write(ADDRESS0,REQLEN3);
+   join
+   fork
+      wait(sdc_req_ack2);
+      sdram_write(ADDRESS0,REQLEN3);
+   join
+   fork
+      wait(sdc_req_ack2);
+      sdram_read(ADDRESS0,REQLEN2);
+   join
+   fork
+      wait(sdc_req_ack2);
 
-sdram_write(ADDRESS1,REQLEN2);
-sdram_read(ADDRESS1,REQLEN2);
+      sdram_write(ADDRESS0,REQLEN3);
+   join
+   fork
+      wait(sdc_req_ack2);
+      sdram_read(ADDRESS0,REQLEN3);
+   join/*
+   fork
+      wait(sdc_req_ack2);
 
-sdram_write(ADDRESS2,REQLEN1);
-sdram_read(ADDRESS2,REQLEN1);
+      sdram_write(ADDRESS2,REQLEN3);
+   join
+   fork
+      wait(sdc_req_ack2);
+      sdram_read(ADDRESS2,REQLEN3);
+   join
+   fork
+      wait(sdc_req_ack2);
 
-sdram_write(ADDRESS3,REQLEN0);
-sdram_read(ADDRESS3,REQLEN0);
+      sdram_write(ADDRESS3,REQLEN0);
+   join
+   fork
+      wait(sdc_req_ack2);
+      sdram_read(ADDRESS3,REQLEN0);
+   join*/
 
 `endif
 #(15*SClkTP);
@@ -62,9 +110,5 @@ sdram_read(ADDRESS3,REQLEN0);
    reset_sdr;
 `endif
 
-
-
    end
 endtask
-
-

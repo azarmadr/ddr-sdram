@@ -1,4 +1,4 @@
 vlog ../micron/*.V   
-vlog +define+t1 +define+debug +define+mod1 +define+DUMPVCD +incdir+./Testcases +incdir+../rtl *.v
+vlog  +incdir+./Testcases +incdir+../rtl *.v +define+t1+debug+DUMPVCD+#mod1
 vsim -novopt TOP_TB
 run -all

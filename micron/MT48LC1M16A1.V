@@ -47,7 +47,7 @@
 *       Micron Technology Inc.                    - Simple testbench included
 ****************************************************************************************/
 
-//`timescale 1ns / 100ps
+`timescale 1ns / 100ps
 
 module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 

@@ -1,17 +1,18 @@
 
+`timescale 1ns / 100ps
 
 //========================define.v====================================//
 
 `define T_RCD 2   //ras to cas delay, for -8 SDRAM, we need 3 clock cycles for t_rcd
 
 `define SDC_ADDR_MSB           11
-`define SDC_DATA_MSB           31//15	 
-`define SYS_ADDR_MSB           22	 
+`define SDC_DATA_MSB           31//15
+`define SYS_ADDR_MSB           22
 `define SYS_DATA_MSB           15
 `define U_ADDR_MSB             22	//  23 bits  ba(2)+ row(12)+ col(9)
-`define U_DATA_MSB             31	 
+`define U_DATA_MSB             31
 `define ROW_ADDR_MSB           12
-`define COL_ADDR_MSB            9		 
+`define COL_ADDR_MSB            9
 `define ENABLE_MSB             15
 
 

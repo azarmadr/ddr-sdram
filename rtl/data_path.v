@@ -14,7 +14,7 @@
 // Rev1.4     : 19 August 2002    				           //	
 //	        			                                   //
 /////////////////////////////////////////////////////////////////////////////
-
+`include "define.v"
 module data_path (
    u_data_o, sdc_dqs, u_data_valid, Dwrite_en,// Outputs
 
@@ -85,7 +85,8 @@ module data_path (
    reg 				sdc_dqsT;
    reg [1:0]			req_len1,req_len2,req_len3;
 
-   wire [31:0]TDAT = ((cas3|cas2)&clk) ? read_data :	(cas25&&~clk&&clk2x&1)  ? read_data : TDAT;//32'hzz;
+   wire [31:0]TDAT /* verilator split_var */ ;
+   assign TDAT = ((cas3|cas2)&clk) ? read_data :	(cas25&&~clk&&clk2x&1)  ? read_data : TDAT ;
 
    wire Dwrite_en	= (burst_4) ? ((OvfSet)  ? (sdc_write_en|sdc_write_en1): sdc_write_en):
 			  (burst_2) ?  sdc_write_en1 :
@@ -257,7 +258,7 @@ wire Srd_valid = (req_len3===2'b00&burst_8) ? Dread_en0 :
    end	
 	sdc_write_en25  <= sdc_write_en2;
         sdc_read_en15   <= sdc_read_en1;
-	sdc_dqsT 	<= (dqsEn) ? ~clk : 1'bz;
+	sdc_dqsT 	= dqsEn ? ~clk : 1'bz;
   end
 								// dqs en diff bl4 & bl2
 //dqsEn drives dqs signal for writing data
@@ -266,33 +267,33 @@ wire Srd_valid = (req_len3===2'b00&burst_8) ? Dread_en0 :
    begin
         if(!rst2)
          begin
- 	          	sdc_dq_o  <= {(`SDC_DATA_MSB +1){1'b0}};
-			u_data_o2 <= {(`U_DATA_MSB +1){1'b0}};
+ 	          	sdc_dq_o  = {(`SDC_DATA_MSB +1){1'b0}};
+			u_data_o2 = {(`U_DATA_MSB +1){1'b0}};
 	 end
         else
         if(sdc_sel)							//.....SDRAM
          begin
 		if(Sread_en)
-		     u_data_o2 <= rd_sd;
+		     u_data_o2 = rd_sd;
 		else
              	if(Swrite_en)
-	             sdc_dq_o <= write_data;//_msb;
+	             sdc_dq_o = write_data;//_msb;
 		else
 		begin
-	           	sdc_dq_o  <= {(`SDC_DATA_MSB +1){1'bz}};
-			u_data_o2 <= {(`U_DATA_MSB +1){1'bz}};
+	           	sdc_dq_o  = {(`SDC_DATA_MSB +1){1'bz}};
+			u_data_o2 = {(`U_DATA_MSB +1){1'bz}};
 		end
          end
         else										//---DDRAM
          begin
 		if(Dwrite_en & ~clk)//~
-	      		sdc_dq_o  <= data_msb;
+	      		sdc_dq_o  = data_msb;
 		else
 		if(Dwrite_en & 	clk)//~~
- 	      		sdc_dq_o  <= data_lsb;
+ 	      		sdc_dq_o  = data_lsb;
 		else
 		if(!sdc_write_en)
-	      		sdc_dq_o  <= {(`SDC_DATA_MSB +1){1'bz}};
+	      		sdc_dq_o  = {(`SDC_DATA_MSB +1){1'bz}};
    	 end
        sdc_read_en25   <= sdc_read_en2;
 

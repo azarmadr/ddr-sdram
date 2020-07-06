@@ -629,7 +629,7 @@ assign {write_en,read_en,row_addr,StWrRd,wrNxt} =
 	(bnkSel0) ? {write_en0,read_en0,rowAdrB0,StWrRd0,wrNxt0}:
 	(bnkSel1) ? {write_en1,read_en1,rowAdrB1,StWrRd1,wrNxt1}:
 	(bnkSel2) ? {write_en2,read_en2,rowAdrB2,StWrRd2,wrNxt2}:
-	(bnkSel3) ? {write_en3,read_en3,rowAdrB3,StWrRd3,wrNxt3}: 6'h00 ;
+	(bnkSel3) ? {write_en3,read_en3,rowAdrB3,StWrRd3,wrNxt3}: 5'h00 ;
 	
 
 endmodule

@@ -15,6 +15,7 @@
 //	        			                                   //
 /////////////////////////////////////////////////////////////////////////////
 
+`include "define.v"
 module state(
 	
    //Outputs
@@ -306,7 +307,7 @@ wire [7:0]bustN  = (sdr_sel) ? bustNS-8'h01 :((bl==9'h8)&(beat==4'h1))
      begin
 	prechD		<= w_prech;
 	AdrCntOvfD	<= AdrCntOvf;
-	req_lenM	    = (sdr_reqD) ? req_len :req_lenM;
+	req_lenM	    <= (sdr_reqD) ? req_len :req_lenM;
 	pgEnd1		<= pgEnd;
 	StpBst		<= pgEnd1;
 
@@ -536,14 +537,6 @@ begin
 			 end
 
 	s_act_row	: begin
-			   	n_state = s_trcd_delay;
-			  end
-	s_trcd_delay	: begin
-			   if(wen && trcd_end)		
-			   	n_state = s_write;
-			   else if( ren && trcd_end)		
-			   	n_state = s_read;
-			   else
 			   	n_state = s_trcd_delay;
 			  end
 			  		

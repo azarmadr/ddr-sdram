@@ -39,7 +39,7 @@
 *       Micron Technology Inc.
 ****************************************************************************************/
 
-//`timescale 1ns / 100ps
+`timescale 1ns / 100ps
 
 module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
@@ -118,13 +118,7 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     // Write Burst Mode
     wire      Write_burst_mode = Mode_reg[9];
 
-`ifdef debug
-wire Debug = 1;
-`else
-wire Debug = 0;
-`endif
-
-//    wire      Debug            = 1'b1;                          // Debug messages : 1 = On
+    wire      Debug            = 1'b1;                          // Debug messages : 1 = On
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
 
     assign    Dq               = Dq_reg;                        // DQ buffer

@@ -23,42 +23,42 @@ parameter 	MClkTP 			= 10,
 begin
 
    $display("\t\t+---------------------+\n\t\t|   test2_Sc3bl4.v    |\n\t\t+---------------------+");
-   //---->-----------cas=3--bl=4----    //--==>23 bits  ba(2)+ row(12)+ col(9)
+   //---->-----------cas=3--bl=4----//--==>23 bits  ba(2)+ row(12)+ col(9)
 
-      initialize_sdr_ddr(SDR_ModCas3BL4,1'b1); // sel = 1 for sdram
+   initialize_sdr_ddr(SDR_ModCas3BL4,1'b1); // sel = 1 for sdram
 
-      `ifdef mod1
-	 sdram_write(ADDRESS0,REQLEN3);
-	 sdram_write(ADDRESS1,REQLEN2);
-	 sdram_write(ADDRESS2,REQLEN1);
-	 sdram_write(ADDRESS3,REQLEN0);
+   `ifdef mod1
+      sdram_write(ADDRESS0,REQLEN3);
+      sdram_write(ADDRESS1,REQLEN2);
+      sdram_write(ADDRESS2,REQLEN1);
+      sdram_write(ADDRESS3,REQLEN0);
 
-	 sdram_read(ADDRESS0,REQLEN3);
-	 sdram_read(ADDRESS1,REQLEN2);
-	 sdram_read(ADDRESS2,REQLEN1);
-	 sdram_read(ADDRESS3,REQLEN0);
+      sdram_read(ADDRESS0,REQLEN3);
+      sdram_read(ADDRESS1,REQLEN2);
+      sdram_read(ADDRESS2,REQLEN1);
+      sdram_read(ADDRESS3,REQLEN0);
 
-      `else
+   `else
 
-	 sdram_write(ADDRESS0,REQLEN3);
-	 sdram_read(ADDRESS0,REQLEN3);
+      sdram_write(ADDRESS0,REQLEN3);
+      sdram_read(ADDRESS0,REQLEN3);
 
-	 sdram_write(ADDRESS1,REQLEN2);
-	 sdram_read(ADDRESS1,REQLEN2);
+      sdram_write(ADDRESS1,REQLEN2);
+      sdram_read(ADDRESS1,REQLEN2);
 
-	 sdram_write(ADDRESS2,REQLEN1);
-	 sdram_read(ADDRESS2,REQLEN1);
+      sdram_write(ADDRESS2,REQLEN1);
+      sdram_read(ADDRESS2,REQLEN1);
 
-	 sdram_write(ADDRESS3,REQLEN0);
-	 sdram_read(ADDRESS3,REQLEN0);
-      `endif
-      $display("D");
-      #(10*SClkTP);
+      sdram_write(ADDRESS3,REQLEN0);
+      sdram_read(ADDRESS3,REQLEN0);
+   `endif
+   $display("D");
+   #(10*SClkTP);
 
-      `ifdef all
-	 reset_sdr;
-      `endif
+   `ifdef all
+      reset_sdr;
+   `endif
 
-   end
+end
 endtask
 

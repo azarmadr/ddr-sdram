@@ -1,5 +1,4 @@
-
-
+`include"define.v"
 module sdc_dq_io_64 (
    // Outputs
    sdc_dq_i, 

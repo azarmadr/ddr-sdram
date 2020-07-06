@@ -1,9 +1,5 @@
 
-
-
-
-
-
+`include"define.v"
 module IOBUF_SSTL2_II (I, IO, O, T);
 
 input I;
