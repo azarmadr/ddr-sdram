@@ -6,3 +6,6 @@ tests/work/*
 .gitignore
 transcript
 *.vcd
+Session.vim
+o.txt
+.gitignore
