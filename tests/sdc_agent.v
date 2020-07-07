@@ -176,14 +176,11 @@ parameter	REQLEN3 		= 4'h3,
 
 //-------------------------------------------------//
 
-
-wire [1:0]sft	 = (bl==4'h8) ? 2'b11:
-		   (bl==4'h4) ? 2'b10:
-		   (bl==4'h2) ? 2'b01:2'b00;
-reg [2:0]beat;
-reg [7:0]byte;
-reg [7:0]bustNT;
-reg [7:0]bustN;
+reg  [ 2:0]  beat;
+reg  [ 7:0]  byte;
+reg  [ 7:0]  bustNT;
+reg  [ 7:0]  bustN;
+wire [ 1:0]  sft;
 reg sdc_req_ack1,sdc_req_ack2,chk;
 
 wire burstPage = (sdc_mode_reg[2:0] == 3'b111);
@@ -191,7 +188,6 @@ wire burstPage = (sdc_mode_reg[2:0] == 3'b111);
 wire [7:0]Plen  = 	(burstPage)           ?
 			((sdc_req_len==2'b00) ? 8'h04 :
 		  	(sdc_req_len==2'b01)  ? 8'h08 :
-		  	(sdc_req_len==2'b10)  ? 8'h10 :
 		  	(sdc_req_len==2'b11)  ? 8'h20 : 8'h10) :8'h00;
 always @(mclk)
 begin
@@ -204,6 +200,9 @@ begin
 		beat	 	= sdc_req_len + 3'b001;	//# of beat = len + 1
 		byte   	= (8'h08)  << beat;
 		bustNT 	= (byte)   >> 2;
+	        sft	= (bl==4'h8) ? 2'b11:
+		          (bl==4'h4) ? 2'b10:
+		          (bl==4'h2) ? 2'b01:2'b00;
 		bustN  	= (bustNT) >>sft ;
 end
 
@@ -299,8 +298,6 @@ task sdram_write;
 
       wait(sdc_wr_next);
 
-
-//while(sdc_wr_next)begin
       if(!burstPage)
       begin
 
@@ -320,7 +317,6 @@ task sdram_write;
 	 sdc_wr_data  = m;
          //#SClkTP;
       end
-//   end
    #SClkTP;
    end
 endtask
@@ -347,7 +343,7 @@ wait(sdc_rd_valid);
 while(sdc_rd_valid)begin
    if(!burstPage)
    begin
-      for(l=0;l<1;l=l+1)//bustN;l=l+1)
+      for(l=0;l</*1;l=l+1)*/bustN;l=l+1)
       begin
 	 for(m=0;m<bl;m=m+1)begin
 	    #SClkTP;

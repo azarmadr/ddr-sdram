@@ -20,4 +20,22 @@ inline void ostream& operator << (ostream& os, const pkt_sdr& p){
    os<<"_Burst_type"<<pkt.req_len;
    return os;
 }
+void pkt_gen(pkt* p, sc_bv<12> r){
+   int l;
+   p->addr   =rand();//should change later to accomodate
+   p->req_len=rand();//testcases
+   if (r.range(2,0) == "111")
+      l=2^(2+p->req_len);
+   else{
+      int k;
+      l=1;
+      k=(p->req_len - (int)r.range(1,0)+1)%8;
+      if(r(0)) l*=2;
+      if(r(1)) l*=4;
+      l*=2^k;
+   }
+   for(int i=0;i<l;i++){
+      p->data.push_back(rand());
+   }
+}
 #endif
