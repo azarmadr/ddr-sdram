@@ -2,45 +2,42 @@
 #define _SDC_DRV
 
 #include "sdc/pkt.h"
+#include "sdc/if.h"
 SC_MODULE(drv_sdc){
-   sc_in<bool>         sclk,     srst;
-   sc_out<bool>        req,      wr_rd;
-   sc_out<sc_bv<2> >   req_len;
-   sc_out<sc_bv<23> >  addr;
-   sc_out<uint32_t>    wdata;
-   sc_in<uint32_t>     rdata;
-   sc_in<sc_bv<12> >   m_reg;
-   sc_in<bool>         req_ack,  rd_v,   wr_nxt,  init_f;
+   if_sdc* vif;
 
-   //sc_port<sc_fifo_out_if<pkt*> > sdc_drv_f;
+   //sc_port<sc_fifo_out_if<pkt*> > sdc_drv_f; //for testcases
+
+   sc_port<sc_fifo_in_if<if_sdc*> > sdc_if_f;
 
    void driver();
    void req_a();
 
    SC_CTOR(drv_sdc){
-      SC_CTHREAD(driver, sclk.pos());
-      reset_signal_is(srst,false);
+      sdc_if_f->read(vif);
+      SC_CTHREAD(driver, vif->sclk.pos());
+      reset_signal_is(vif->srst,false);
       SC_THREAD(req_a);
-      sensitive<<req_ack.pos();
-      reset_signal_is(srst,false);
+      sensitive<<vif->req_ack.pos();
+      reset_signal_is(vif->srst,false);
    }
 };
 void drv_sdc::driver(){
    wait();
    while(1){
       pkt_sdr* p = new(pkt_sdr);
-      pkt_gen(p,m_reg->read());
+      pkt_gen(p,vif->m_reg.read());
 
-      while(!init_f) wait (1,SC_NS);
-      req->write(true);
+      while(!vif->init_f) wait (1,SC_NS);
+      vif->req.write(true);
       (p->wr_rd)?
-	 while(!rd_v)   wait (1,SC_NS):
-	 while(!wr_nxt) wait (1,SC_NS);
+	 while(!vif->rd_v)   wait (1,SC_NS):
+	 while(!vif->wr_nxt) wait (1,SC_NS);
 
-      while(wr_nxt || rd_v){
+      while(vif->wr_nxt || vif->rd_v){
 	 (p->wr_rd)?
-	    wdata->write(p->data.pop_back ()):
-	    rdata->read (p->data.push_back());
+	    vif->wdata.write(p->data.pop_back ()):
+	    vif->rdata.read (p->data.push_back());
 	 wait();
       }
    }
@@ -49,7 +46,7 @@ void drv_sdc::req_a(){
    wait(1,SC_NS);
    while(1){
       wait();
-      req->write(false);
+      vif->req.write(false);
    }
 }
 #endif

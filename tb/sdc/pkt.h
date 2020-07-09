@@ -2,25 +2,29 @@
 #define _PACKET_H
 
 #include <vector>
-#include "systemc.h"
+#include <systemc>
 struct pkt_sdr{
    sc_bv<23>         addr;
    vector<uint32_t>  data;
    sc_bv<2>          req_len;
    bool wr_rd;
-}
+   inline bool operator == (const pkt_sdr& rhs) const{
+      return(req_len == rhs.req && addr == rhs.addr && data == rhs.data);
+   }
+};
 inline void ostream& operator << (ostream& os, const pkt_sdr& p){
    os<<"_SDC_Packet"<<endl;
-   os<<pkt.addr<<endl;
-   if(pkt.wr_rd_n){
-      os<<pkt.rdata<<endl;
+   os<<pkt_sdr.addr<<endl;
+   if(pkt_sdr.wr_rd_n){
+      os<<pkt_sdr.rdata<<endl;
    } else {
-      os<<pkt.wdata<<endl;
+      os<<pkt_sdr.wdata<<endl;
    }
-   os<<"_Burst_type"<<pkt.req_len;
+   os<<"_Burst_type"<<pkt_sdr.req_len;
    return os;
 }
-void pkt_gen(pkt* p, sc_bv<12> r){
+//void rand_pkt(){
+void pkt_gen(pkt_sdr* p, sc_bv<12> r){
    int l;
    p->addr   =rand();//should change later to accomodate
    p->req_len=rand();//testcases
@@ -39,7 +43,7 @@ void pkt_gen(pkt* p, sc_bv<12> r){
       }
       for(int i=0;i<l;i++){
 	 p->data.push_back(rand());
-      };
+      }
    }
 }
 #endif
