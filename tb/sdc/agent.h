@@ -12,10 +12,11 @@ SC_MODULE(agent_sdc){
 
    SC_CTOR(agent_sdc):
       drv("drv"),
-      mon("mon"){
-	 mon.connect_if(vif);
-	 drv.connect_if(vif);
-      }
+      mon("mon")
+   {
+      mon.connect_if(vif);
+      drv.connect_if(vif);
+   }
 }
 void agent_sdc::connect_if(if_sdc *vif){
    this.vif=vif;
