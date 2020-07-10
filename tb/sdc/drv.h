@@ -48,7 +48,7 @@ void drv_sdc::req_a(){
       vif->req.write(false);
    }
 }
-void drv_sdc::connect_if(if_sdc *vif){
+void drv_sdc::connect_if(if_sdc * vif){
    this.vif=vif;
 }
 #endif

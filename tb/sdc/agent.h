@@ -18,7 +18,7 @@ SC_MODULE(agent_sdc){
       drv.connect_if(vif);
    }
 }
-void agent_sdc::connect_if(if_sdc *vif){
+void agent_sdc::connect_if(if_sdc * vif){
    this.vif=vif;
 }
 #endif

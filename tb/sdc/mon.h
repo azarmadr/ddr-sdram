@@ -40,7 +40,7 @@ void mon_sdc::monitor(){
       sdc_ap.write(p);
    }
 }
-void mon_sdc::connect_if(if_sdc *vif){
+void mon_sdc::connect_if(if_sdc * vif){
    this.vif=vif;
 }
 #endif
