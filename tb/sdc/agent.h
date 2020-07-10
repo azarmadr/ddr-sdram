@@ -5,20 +5,19 @@
 #include "sdc/drv.h"
 SC_MODULE(agent_sdc){
    if_sdc* vif;
-
-   sc_port<sc_fifo_in_if<if_sdc*> >   sdc_if_f;
-   sc_port<sc_fifo_out_if<if_sdc*> >  drv_if_f;
-   sc_port<sc_fifo_out_if<if_sdc*> >  mon_if_f;
-
    drv_sdc drv;
    mon_sdc mon;
+
+   void connect_if(if_sdc * vif);
 
    SC_CTOR(agent_sdc):
       drv("drv"),
       mon("mon"){
-	 sdc_if_f->read (vif);
-	 drv_if_f->write(vif);
-	 mon_if_f->write(vif);
+	 mon.connect_if(vif);
+	 drv.connect_if(vif);
       }
+}
+void agent_sdc::connect_if(if_sdc *vif){
+   this.vif=vif;
 }
 #endif

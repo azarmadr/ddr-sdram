@@ -7,9 +7,9 @@ SC_MODULE(mon_sdc){
    if_sdc* vif;
 
    sc_port<sc_fifo_out_if<pkt*> >    sdc_ap;
-   sc_port<sc_fifo_in_if<if_sdc*> >  sdc_if_f;
 
    void monitor();
+   void connect_if(if_sdc * vif);
 
    SC_CTOR(mon_sdc){
       sdc_if_f->read(vif);
@@ -39,5 +39,8 @@ void mon_sdc::monitor(){
       }
       sdc_ap.write(p);
    }
+}
+void mon_sdc::connect_if(if_sdc *vif){
+   this.vif=vif;
 }
 #endif

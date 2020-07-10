@@ -1,7 +1,7 @@
 #ifndef _SDC_IF
 #define _SDC_IF
 
-#include <systemc>
+#include "systemc.h"
 class if_sdc{
    public:
       sc_signal<bool>        sclk,     srst,   req,  wr_rd,  req_ack,  rd_v,  wr_nxt,  init_f;

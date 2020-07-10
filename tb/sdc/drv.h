@@ -8,10 +8,9 @@ SC_MODULE(drv_sdc){
 
    //sc_port<sc_fifo_out_if<pkt*> > sdc_drv_f; //for testcases
 
-   sc_port<sc_fifo_in_if<if_sdc*> > sdc_if_f;
-
    void driver();
    void req_a();
+   void connect_if(if_sdc * vif);
 
    SC_CTOR(drv_sdc){
       sdc_if_f->read(vif);
@@ -48,5 +47,8 @@ void drv_sdc::req_a(){
       wait();
       vif->req.write(false);
    }
+}
+void drv_sdc::connect_if(if_sdc *vif){
+   this.vif=vif;
 }
 #endif
