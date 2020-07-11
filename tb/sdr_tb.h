@@ -3,21 +3,18 @@
 
 #include "sdc/agent.h"
 SC_MODULE(sdr_tb){
-   if_sdc* vif;
+   if_sdc*    vif;
+   agent_sdc  sdc_a;
 
-   sc_port<sc_fifo_in_if<if_sdc*> >   sdc_if_f;
-   sc_port<sc_fifo_out_if<if_sdc*> >  drv_if_f;
-   sc_port<sc_fifo_out_if<if_sdc*> >  mon_if_f;
+   void connect_if(if_sdc * vif);
 
-   drv_sdc drv;
-   mon_sdc mon;
-
-   SC_CTOR(agent_sdc):
-      drv("drv"),
-      mon("mon"){
-	 sdc_if_f->read (vif);
-	 drv_if_f->write(vif);
-	 mon_if_f->write(vif);
-      }
+   SC_CTOR(sdr_tb):
+      sdc_a("sdc_a")
+   {
+      sdc_a.connect_if(vif);
+   }
+}
+void sdr_tb::connect_if(if_sdc * vif){
+   this.vif=vif;
 }
 #endif

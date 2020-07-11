@@ -258,15 +258,9 @@ if(debug)
   		sdc_rfmax		<=	3'b011;
 	   #MClkTP s_resetn  = 1'b1;
 
-//#(115*MClkTP);
-
-//#(10420*SClkTP);
 wait(sdc_init_done);
 	sdc_mode_reg     =  (sdc_init_done) ? mod_reg :12'h000;//_is_necessary?
 	sdc_cas			 = sdc_mode_reg[6:4];
-#SClkTP;
-#SClkTP;
-#SClkTP;
 end
  endtask
 

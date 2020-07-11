@@ -70,7 +70,7 @@ module sdc_top(
   input				sdr_req_wr_n;     //  0 - write, 1 - read
 
   input  [`U_DATA_MSB:0]	sdr_wr_data;      //  data in for write
-  input  [3:0]			sdr_wr_en_n;      //  data mask
+  input  [3:0]			sdr_wr_en_n/*verilator sc_bv*/;      //  data mask
 
   input				sdr_en;		  //  enable controller
 

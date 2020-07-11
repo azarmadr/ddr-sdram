@@ -779,7 +779,7 @@ wire Debug = 0;
     always @ (Rw_command or Sys_clk or posedge Dqs) begin//edited_by_SAM
         if (Rw_command === `READ || Rw_command === `READ_A) begin
             Latch_address;
-            @ (Sys_clk);
+            wait (Sys_clk);
             Bank = Bank_dqs;
             Row = Row_dqs;
             Col = Col_dqs;
