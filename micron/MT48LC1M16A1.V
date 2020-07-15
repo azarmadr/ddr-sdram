@@ -180,14 +180,12 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     end
 
     // System clock generator
-    always begin
-        @ (posedge Clk) begin
-            Sys_clk = CkeZ;
-            CkeZ = Cke;
-        end
-        @ (negedge Clk) begin
-            Sys_clk = 0;
-        end
+    always @ (posedge Clk) begin
+      Sys_clk = CkeZ;
+      CkeZ = Cke;
+    end
+    always @ (negedge Clk) begin
+      Sys_clk = 0;
     end
 
     always @ (posedge Sys_clk) begin
@@ -462,7 +460,7 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                     end else begin
                         Command[2] = `READ;
                     end
-                    Col_addr[2] = Addr;
+                    Col_addr[2] = Addr[7:0];
                     Bank_addr[2] = Ba;
                 end else if (Cas_latency_2 == 1'b1) begin
                     if (Addr[10] == 1'b1) begin
@@ -470,7 +468,7 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                     end else begin
                         Command[1] = `READ;
                     end
-                    Col_addr[1] = Addr;
+                    Col_addr[1] = Addr[7:0];
                     Bank_addr[1] = Ba;
 //              end else if (Cas_latency_1 == 1'b1) begin
 //                  if (Addr[10] == 1'b1) begin
@@ -506,7 +504,7 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 end else begin
                     Command[0] = `WRITE;
                 end
-                Col_addr[0] = Addr;
+                Col_addr[0] = Addr[7:0];
                 Bank_addr[0] = Ba;
 
                 // Write Interrupt Write (terminate immediately)
@@ -631,7 +629,7 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         end
 
         if (Data_out_enable == 1'b0) begin
-            Dq_reg <= #tOH {data_bits{1'bz}};
+            Dq_reg = #tOH {data_bits{1'bz}};
         end
 
         // Detect Read or Write command

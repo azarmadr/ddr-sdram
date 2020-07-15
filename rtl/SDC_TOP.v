@@ -50,7 +50,7 @@ module sdc_top(
   output 		    	sdc_csb, 	  //  chip select o/p of controller
 				sdc_cke;	  //  clk enable o/p
 
-  inout  [`SDC_DATA_MSB:0]	sdc_dq;           //  bi-directional data bus
+  inout  [`SDC_DATA_MSB:0]	sdc_dq/*verilator sc_bv*/;           //  bi-directional data bus
   inout 	 	    	sdc_dqs;          //  bi-directional dqs signal for DDRAM
 
    //====Interface to Host=====

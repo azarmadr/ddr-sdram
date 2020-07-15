@@ -55,7 +55,7 @@ module mt46v4m16 (Dq, Dqs, Addr, Ba, Clk, Clk_n, Cke, Cs_n, Ras_n, Cas_n, We_n, 
     parameter mem_sizes = 1048575;
 
     inout     [data_bits - 1 : 0] Dq;
-    inout                         Dqs;
+    inout                         Dqs/*verilator clocker*/;
     input     [addr_bits - 1 : 0] Addr;
     input                 [1 : 0] Ba;
     input                         Clk;
@@ -72,12 +72,12 @@ module mt46v4m16 (Dq, Dqs, Addr, Ba, Clk, Clk_n, Cke, Cs_n, Ras_n, Cas_n, We_n, 
     reg       [data_bits - 1 : 0] Bank2 [0 : mem_sizes];
     reg       [data_bits - 1 : 0] Bank3 [0 : mem_sizes];
 
-    reg                   [1 : 0] Bank_addr [0 : 6];
-    reg        [col_bits - 1 : 0] Col_addr [0 : 6];
+    reg                   [1 : 0] Bank_addr [0 : 6]/*verilator split_var*/;
+    reg        [col_bits - 1 : 0] Col_addr [0 : 6]/*verilator split_var*/;
     reg                   [3 : 0] Command [0 : 6];
     reg       [addr_bits - 1 : 0] B0_row_addr, B1_row_addr, B2_row_addr, B3_row_addr;
 
-    reg       [addr_bits - 1 : 0] Mode_reg;
+    reg       [addr_bits - 1 : 0] Mode_reg/*verilator split_var*/;
     reg       [data_bits - 1 : 0] Dq_dm, Dq_out;
     reg        [col_bits - 1 : 0] Col_temp, Burst_counter;
 
@@ -95,8 +95,8 @@ module mt46v4m16 (Dq, Dqs, Addr, Ba, Clk, Clk_n, Cke, Cs_n, Ras_n, Cas_n, We_n, 
     reg                           Data_in_enable;
     reg                           Data_out_enable;
 
-    reg                   [3 : 0] Rw_command;
-    reg                   [1 : 0] Bank, Bank_dqs, Previous_bank;
+    reg                   [3 : 0] Rw_command/*verilator split_var*/;
+    reg                   [1 : 0] Bank/*verilator split_var*/, Bank_dqs, Previous_bank;
     reg       [addr_bits - 1 : 0] Row, Row_dqs;
     reg        [col_bits - 1 : 0] Col, Col_dqs;
     reg        [col_bits - 1 : 0] Col_brst, Col_brst_dqs;
@@ -175,11 +175,11 @@ wire Debug = 0;
         Dqs_out = 1'bz;
         Dq_out = {data_bits{1'bz}};
         {Data_in_enable, Data_out_enable} = 2'b0;
-        {MRD_chk, WTR_chk, RC_chk, RRD_chk} = 4'b0;
-        {RAS_chk0, RAS_chk1, RAS_chk2, RAS_chk3} = 4'b0;
-        {RCD_chk0, RCD_chk1, RCD_chk2, RCD_chk3} = 4'b0;
-        {RP_chk, RP_chk0, RP_chk1, RP_chk2, RP_chk3} = 4'b0;
-        {WR_chk[0], WR_chk[1], WR_chk[2], WR_chk[3]} = 4'b0;
+        {MRD_chk, WTR_chk, RC_chk, RRD_chk} = 'b0;
+        {RAS_chk0, RAS_chk1, RAS_chk2, RAS_chk3} = 'b0;
+        {RCD_chk0, RCD_chk1, RCD_chk2, RCD_chk3} = 'b0;
+        {RP_chk, RP_chk0, RP_chk1, RP_chk2, RP_chk3} = 'b0;
+        {WR_chk[0], WR_chk[1], WR_chk[2], WR_chk[3]} = 'b0;
         //$readmemh("bank0.txt", Bank0);
         //$readmemh("bank1.txt", Bank1);
         //$readmemh("bank2.txt", Bank2);
@@ -549,7 +549,7 @@ wire Debug = 0;
                         end else begin
                             Command[6] = `READ;
                         end
-                        Col_addr[6] = Addr;
+                        Col_addr[6] = Addr[7:0];
                         Bank_addr[6] = Ba;
                     end else if (Cas_latency_25 === 1'b1) begin
                         if (Addr[10] === 1'b1) begin
@@ -557,7 +557,7 @@ wire Debug = 0;
                         end else begin
                             Command[5] = `READ;
                         end
-                        Col_addr[5] = Addr;
+                        Col_addr[5] = Addr[7:0];
                         Bank_addr[5] = Ba;
                     end else if (Cas_latency_2 === 1'b1) begin
                         if (Addr[10] === 1'b1) begin
@@ -565,7 +565,7 @@ wire Debug = 0;
                         end else begin
                             Command[4] = `READ;
                         end
-                        Col_addr[4] = Addr;
+                        Col_addr[4] = Addr[7:0];
                         Bank_addr[4] = Ba;
                     end
                     // tWTR check (Write to Read)
@@ -588,7 +588,7 @@ wire Debug = 0;
                     end else begin
                         Command[2] = `WRITE;
                     end
-                    Col_addr[2] = Addr;
+                    Col_addr[2] = Addr[7:0];
                     Bank_addr[2] = Ba;
                 end
 
@@ -775,11 +775,14 @@ wire Debug = 0;
         end
     endtask
 
+   always@(Rw_command) Latch_address;
+   always@(Sys_clk)begin
+      wait(Rw_command);
+   end
     // Read or Write command waiting for posedge DQS
-    always @ (Rw_command or Sys_clk or posedge Dqs) begin//edited_by_SAM
+    always @ (Sys_clk/*Rw_command or Sys_clk or posedge Dqs*/) begin//edited_by_SAM
         if (Rw_command === `READ || Rw_command === `READ_A) begin
-            Latch_address;
-            wait (Sys_clk);
+            @ (Sys_clk);
             Bank = Bank_dqs;
             Row = Row_dqs;
             Col = Col_dqs;
@@ -788,7 +791,6 @@ wire Debug = 0;
             Data_in_enable = 1'b0;
             Data_out_enable = 1'b1;
         end else if (Rw_command === `WRITE || Rw_command === `WRITE_A) begin
-            Latch_address;
             @ (posedge Dqs);
             Bank = Bank_dqs;
             Row = Row_dqs;
@@ -806,9 +808,9 @@ wire Debug = 0;
         if (Data_in_enable === 1'b1) begin                          // Writing Data to Memory
             // Array buffer
             if (Bank == 2'b00) Dq_dm [15 : 0] = Bank0 [{Row, Col}];
-            if (Bank == 2'b01) Dq_dm [15 : 0] = Bank1 [{Row, Col}];
-            if (Bank == 2'b10) Dq_dm [15 : 0] = Bank2 [{Row, Col}];
-            if (Bank == 2'b11) Dq_dm [15 : 0] = Bank3 [{Row, Col}];
+            else if (Bank == 2'b01) Dq_dm [15 : 0] = Bank1 [{Row, Col}];
+            else if (Bank == 2'b10) Dq_dm [15 : 0] = Bank2 [{Row, Col}];
+            else if (Bank == 2'b11) Dq_dm [15 : 0] = Bank3 [{Row, Col}];
             // Dqm operation
             if (Dm[0] == 1'b0) Dq_dm [ 7 : 0] = Dq [ 7 : 0];
             if (Dm[1] == 1'b0) Dq_dm [15 : 8] = Dq [15 : 8];

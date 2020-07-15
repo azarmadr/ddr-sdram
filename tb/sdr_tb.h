@@ -2,6 +2,7 @@
 #define _SDR_TB
 
 #include "sdc/agent.h"
+#include "mem/ifc.h"
 SC_MODULE(sdr_tb){
    if_sdc*    vif;
    agent_sdc  sdc_a;
