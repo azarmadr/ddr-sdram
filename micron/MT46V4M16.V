@@ -1,6 +1,6 @@
 /****************************************************************************************
 *
-*    File Name:  MT46V4M16.V  
+*    File Name:  MT46V4M16.V
 *      Version:  0.0f
 *         Date:  May 20th, 1999
 *        Model:  BUS Functional
@@ -22,12 +22,12 @@
 *                - Set Debug = 0 to disable $display messages
 *                - Model assume Clk and Clk# crossing at both edge
 *
-*   Disclaimer:  THESE DESIGNS ARE PROVIDED "AS IS" WITH NO WARRANTY 
-*                WHATSOEVER AND MICRON SPECIFICALLY DISCLAIMS ANY 
+*   Disclaimer:  THESE DESIGNS ARE PROVIDED "AS IS" WITH NO WARRANTY
+*                WHATSOEVER AND MICRON SPECIFICALLY DISCLAIMS ANY
 *                IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
 *                A PARTICULAR PURPOSE, OR AGAINST INFRINGEMENT.
 *
-*                Copyright © 1998 Micron Semiconductor Products, Inc.
+*                Copyright Â© 1998 Micron Semiconductor Products, Inc.
 *                All rights researved
 *
 * Rev   Author          Phone         Date        Changes
@@ -37,7 +37,7 @@
 *                                                 - Fix DQS not properly go LOW if Read
 *                                                   immediate after precharge or burst term
 *                                                 - Add detection for interrupting Read
-*                                                   or Write with Auto Precharge.      
+*                                                   or Write with Auto Precharge.
 *
 * 0.0e  Son Huynh       208-368-3825  03/18/1999  - First Release (derived from 8M8 DDR)
 *       Micron Technology Inc.                    - Simple testbench included
@@ -55,7 +55,7 @@ module mt46v4m16 (Dq, Dqs, Addr, Ba, Clk, Clk_n, Cke, Cs_n, Ras_n, Cas_n, We_n, 
     parameter mem_sizes = 1048575;
 
     inout     [data_bits - 1 : 0] Dq;
-    inout                         Dqs/*verilator clocker*/;
+    inout                         Dqs;
     input     [addr_bits - 1 : 0] Addr;
     input                 [1 : 0] Ba;
     input                         Clk;
@@ -72,33 +72,33 @@ module mt46v4m16 (Dq, Dqs, Addr, Ba, Clk, Clk_n, Cke, Cs_n, Ras_n, Cas_n, We_n, 
     reg       [data_bits - 1 : 0] Bank2 [0 : mem_sizes];
     reg       [data_bits - 1 : 0] Bank3 [0 : mem_sizes];
 
-    reg                   [1 : 0] Bank_addr [0 : 6]/*verilator split_var*/;
-    reg        [col_bits - 1 : 0] Col_addr [0 : 6]/*verilator split_var*/;
+    reg                   [1 : 0] Bank_addr [0 : 6];
+    reg        [col_bits - 1 : 0] Col_addr [0 : 6];
     reg                   [3 : 0] Command [0 : 6];
     reg       [addr_bits - 1 : 0] B0_row_addr, B1_row_addr, B2_row_addr, B3_row_addr;
 
-    reg       [addr_bits - 1 : 0] Mode_reg/*verilator split_var*/;
+    reg       [addr_bits - 1 : 0] Mode_reg;
     reg       [data_bits - 1 : 0] Dq_dm, Dq_out;
-    reg        [col_bits - 1 : 0] Col_temp, Burst_counter;
+    reg        [col_bits - 1 : 0] Col_temp, Burst_counter/* verilator split_var*/;
 
     reg                           Act_b0, Act_b1, Act_b2, Act_b3;
     reg                           Pc_b0, Pc_b1, Pc_b2, Pc_b3;
     reg                           Dqs_int, Dqs_out;
 
-    reg                   [1 : 0] Bank_precharge  [0 : 6];      // Precharge Command Bank
+    reg                   [1 : 0] Bank_precharge  [0 : 6]/* verilator split_var*/;      // Precharge Command Bank
     reg                           A10_precharge   [0 : 6];      // Addr[10] = 1 (All Banks)
     reg                           Auto_precharge  [0 : 3];      // RW AutoPrecharge Bank
     reg                           Read_precharge  [0 : 3];      // R  AutoPrecharge Command
     reg                           Write_precharge [0 : 3];      // W  AutoPrecharge Command
     integer                       Count_precharge [0 : 3];      // RW AutoPrecharge Counter
 
-    reg                           Data_in_enable;
-    reg                           Data_out_enable;
+    reg                           Data_in_enable/*verilator clock_enable*/;
+    reg                           Data_out_enable/*verilator clock_enable*/;
 
-    reg                   [3 : 0] Rw_command/*verilator split_var*/;
-    reg                   [1 : 0] Bank/*verilator split_var*/, Bank_dqs, Previous_bank;
+    reg                   [3 : 0] Rw_command;
+    reg                   [1 : 0] Bank, Bank_dqs, Previous_bank;
     reg       [addr_bits - 1 : 0] Row, Row_dqs;
-    reg        [col_bits - 1 : 0] Col, Col_dqs;
+    reg        [col_bits - 1 : 0] Col/* verilator split_var*/, Col_dqs;
     reg        [col_bits - 1 : 0] Col_brst, Col_brst_dqs;
 
     reg                           Dll_enable;
@@ -124,13 +124,7 @@ module mt46v4m16 (Dq, Dqs, Addr, Ba, Clk, Clk_n, Cke, Cs_n, Ras_n, Cas_n, We_n, 
     wire      Cas_latency_25  =  Mode_reg[6] &  Mode_reg[5] & ~Mode_reg[4];
     wire      Cas_latency_3   = ~Mode_reg[6] &  Mode_reg[5] &  Mode_reg[4];
 
-`ifdef debug
-wire Debug = 1;
-`else
-wire Debug = 0;
-`endif
-
-//    wire      Debug = 1;                                    // Turn on Debug messages
+    wire      Debug = 0;                                    // Turn on Debug messages
     wire      Dq_in = Dqs & Data_in_enable;                 // For checking Data-in Setup/Hold time
 
     assign    Dq  = Dq_out;
@@ -150,15 +144,15 @@ wire Debug = 0;
     `define   EMR      10
 
     // Timing Parameters
-   parameter  tMRD =   2;       //   2 Clk Cycles
-   parameter  tRC  =  65; //80;
-   parameter  tRAS =  48; //50;
-   parameter  tRCD =  20; //30;
-   parameter  tRRD =  15; //20;
-   parameter  tRP  =  20; //30;
+    parameter tMRD =   2;       //   2 Clk Cycles
+    parameter tRC  =  70;
+    parameter tRAS =  50;
+    parameter tRCD =  20;
+    parameter tRRD =  20;
+    parameter tRP  =  20;
     parameter tWR  =   4;       //   2 Clk Cycles (4 Dqs)
     parameter tWTR =   2;       //   1 Clk Cycles (2 Dqs)
-
+/*verilator lint_off UNOPTFLAT*/
     // Timing Check
     integer   MRD_chk, WTR_chk;
     integer   WR_chk[0 : 3];
@@ -166,20 +160,21 @@ wire Debug = 0;
     time      RAS_chk0, RAS_chk1, RAS_chk2, RAS_chk3;
     time      RCD_chk0, RCD_chk1, RCD_chk2, RCD_chk3;
     time      RP_chk, RP_chk0, RP_chk1, RP_chk2, RP_chk3;
+/*verilator lint_on UNOPTFLAT*/
 
     initial begin
-        CkeZ = 1'b0;
-        Sys_clk = 1'b0;
-        {Act_b0, Act_b1, Act_b2, Act_b3} = 4'b0000;
-        {Pc_b0, Pc_b1, Pc_b2, Pc_b3} = 4'b0000;
-        Dqs_out = 1'bz;
-        Dq_out = {data_bits{1'bz}};
-        {Data_in_enable, Data_out_enable} = 2'b0;
-        {MRD_chk, WTR_chk, RC_chk, RRD_chk} = 'b0;
-        {RAS_chk0, RAS_chk1, RAS_chk2, RAS_chk3} = 'b0;
-        {RCD_chk0, RCD_chk1, RCD_chk2, RCD_chk3} = 'b0;
-        {RP_chk, RP_chk0, RP_chk1, RP_chk2, RP_chk3} = 'b0;
-        {WR_chk[0], WR_chk[1], WR_chk[2], WR_chk[3]} = 'b0;
+        CkeZ                                        =1'b0;
+        Sys_clk                                     =1'b0;
+        {Act_b0, Act_b1, Act_b2, Act_b3}            =4'b0000;
+        {Pc_b0, Pc_b1, Pc_b2, Pc_b3}                =4'b0000;
+        Dqs_out                                     =1'bz;
+        Dq_out                                      ={data_bits{1'bz}};
+        {Data_in_enable, Data_out_enable}           =2'b0;
+        {MRD_chk, WTR_chk, RC_chk, RRD_chk}         = 'b0;
+        {RAS_chk0, RAS_chk1, RAS_chk2, RAS_chk3}    = 'b0;
+        {RCD_chk0, RCD_chk1, RCD_chk2, RCD_chk3}    = 'b0;
+        {RP_chk, RP_chk0, RP_chk1, RP_chk2, RP_chk3}= 'b0;
+        {WR_chk[0], WR_chk[1], WR_chk[2], WR_chk[3]}= 'b0;
         //$readmemh("bank0.txt", Bank0);
         //$readmemh("bank1.txt", Bank1);
         //$readmemh("bank2.txt", Bank2);
@@ -187,13 +182,13 @@ wire Debug = 0;
         $timeformat (-9, 1, " ns", 12);
     end
 
-    //_System_Clock__modified_for_verilator
+    // System Clock
     always @ (posedge Clk) begin
-      Sys_clk = CkeZ;
-      CkeZ = Cke;
-    end
-    always @ (negedge Clk) begin
-      Sys_clk = 1'b0;
+            Sys_clk = CkeZ;
+            CkeZ = Cke;
+        end
+   always @ (negedge Clk) begin
+            Sys_clk = 1'b0;
     end
 
     always @ (Sys_clk) begin
@@ -264,7 +259,7 @@ wire Debug = 0;
 
             // tMRD Counter
             MRD_chk = MRD_chk + 1;
-        
+
             // Auto Refresh
             if (Aref_enable === 1'b1) begin
                 if (Debug) $display ("at time %t AREF : Auto Refresh", $time);
@@ -283,7 +278,7 @@ wire Debug = 0;
                 // Record Current tRC time
                 RC_chk = $time;
             end
-        
+
             // Extended Mode Register
             if (Ext_mode_enable === 1'b1) begin
                 if (Pc_b0 === 1'b1 && Pc_b1 === 1'b1 && Pc_b2 === 1'b1 && Pc_b3 === 1'b1) begin
@@ -304,7 +299,7 @@ wire Debug = 0;
                     $display ("at time %t ERROR: all banks must be Precharge before Extended Mode Register", $time);
                 end
             end
-        
+
             // Load Mode Register
             if (Mode_reg_enable === 1'b1) begin
                 // Decode DLL, CAS Latency, Burst Type, and Burst Length
@@ -416,7 +411,7 @@ wire Debug = 0;
                 RRD_chk = $time;
                 Previous_bank = Ba;
             end
-        
+
             // Precharge Block
             if (Prech_enable === 1'b1) begin
                 if (Addr[10] === 1'b1) begin
@@ -481,7 +476,7 @@ wire Debug = 0;
                 if (Data_in_enable === 1'b1 && (Bank === Ba || Addr[10] === 1'b1)) begin
                     Data_in_enable = 1'b0;
                 end
-                
+
                 // Precharge Command Pipeline for READ
                 if (Cas_latency_3 === 1'b1) begin
                     Command[6] = `PRECH;
@@ -499,7 +494,7 @@ wire Debug = 0;
                 // Record Current tRP time
                 RP_chk = $time;
             end
-        
+
             // Burst terminate
             if (Burst_term === 1'b1) begin
                 if (Cas_latency_3 === 1'b1) begin
@@ -510,11 +505,11 @@ wire Debug = 0;
                     Command[4] = `BST;
                 end
                 if (Debug) $display ("at time %t BST  : Burst Terminate",$time);
-                if (Data_in_enable === 1'b1 || (Data_out_enable === 1'b1 && Read_precharge[Bank] === 1'b1)) begin
+                if ((Data_out_enable === 1'b1 && Read_precharge[Bank] === 1'b1)) begin
                     if (Debug) $display ("at time %t ERROR: It's illegal to burst terminate a Write or Read with Auto Precharge", $time);
                 end
             end
-            
+
             // Read, Write, Column Latch
             if (Read_enable === 1'b1 || Write_enable === 1'b1) begin
                 // Check to see if bank is open (ACT)
@@ -609,7 +604,7 @@ wire Debug = 0;
             //          1.  BL/2 cycles after command
             //          2.  Meet minimum tRAS requirement
             if ((Auto_precharge[0] === 1'b1) && (Read_precharge[0] === 1'b1) && ($time - RAS_chk0 >= tRAS)) begin
-                if ((Burst_length_2 === 1'b1 && Count_precharge[0] >= 1) || 
+                if ((Burst_length_2 === 1'b1 && Count_precharge[0] >= 1) ||
                     (Burst_length_4 === 1'b1 && Count_precharge[0] >= 2) ||
                     (Burst_length_8 === 1'b1 && Count_precharge[0] >= 4)) begin
                     Pc_b0 = 1'b1;
@@ -621,7 +616,7 @@ wire Debug = 0;
                 end
             end
             if ((Auto_precharge[1] === 1'b1) && (Read_precharge[1] === 1'b1) && ($time - RAS_chk1 >= tRAS)) begin
-                if ((Burst_length_2 === 1'b1 && Count_precharge[1] >= 1) || 
+                if ((Burst_length_2 === 1'b1 && Count_precharge[1] >= 1) ||
                     (Burst_length_4 === 1'b1 && Count_precharge[1] >= 2) ||
                     (Burst_length_8 === 1'b1 && Count_precharge[1] >= 4)) begin
                     Pc_b1 = 1'b1;
@@ -633,7 +628,7 @@ wire Debug = 0;
                 end
             end
             if ((Auto_precharge[2] === 1'b1) && (Read_precharge[2] === 1'b1) && ($time - RAS_chk2 >= tRAS)) begin
-                if ((Burst_length_2 === 1'b1 && Count_precharge[2] >= 1) || 
+                if ((Burst_length_2 === 1'b1 && Count_precharge[2] >= 1) ||
                     (Burst_length_4 === 1'b1 && Count_precharge[2] >= 2) ||
                     (Burst_length_8 === 1'b1 && Count_precharge[2] >= 4)) begin
                     Pc_b2 = 1'b1;
@@ -645,7 +640,7 @@ wire Debug = 0;
                 end
             end
             if ((Auto_precharge[3] === 1'b1) && (Read_precharge[3] === 1'b1) && ($time - RAS_chk3 >= tRAS)) begin
-                if ((Burst_length_2 === 1'b1 && Count_precharge[3] >= 1) || 
+                if ((Burst_length_2 === 1'b1 && Count_precharge[3] >= 1) ||
                     (Burst_length_4 === 1'b1 && Count_precharge[3] >= 2) ||
                     (Burst_length_8 === 1'b1 && Count_precharge[3] >= 4)) begin
                     Pc_b3 = 1'b1;
@@ -662,7 +657,7 @@ wire Debug = 0;
             //          1.  Two Clock after last burst
             //          2.  Meet minimum tRAS requirement
             if ((Auto_precharge[0] === 1'b1) && (Write_precharge[0] === 1'b1) && ($time - RAS_chk0 >= tRAS)) begin
-                if ((Burst_length_2 === 1'b1 && Count_precharge[0] >= 4) || 
+                if ((Burst_length_2 === 1'b1 && Count_precharge[0] >= 4) ||
                     (Burst_length_4 === 1'b1 && Count_precharge[0] >= 5) ||
                     (Burst_length_8 === 1'b1 && Count_precharge[0] >= 7)) begin
                     Pc_b0 = 1'b1;
@@ -674,7 +669,7 @@ wire Debug = 0;
                 end
             end
             if ((Auto_precharge[1] === 1'b1) && (Write_precharge[1] === 1'b1) && ($time - RAS_chk1 >= tRAS)) begin
-                if ((Burst_length_2 === 1'b1 && Count_precharge[1] >= 4) || 
+                if ((Burst_length_2 === 1'b1 && Count_precharge[1] >= 4) ||
                     (Burst_length_4 === 1'b1 && Count_precharge[1] >= 5) ||
                     (Burst_length_8 === 1'b1 && Count_precharge[1] >= 7)) begin
                     Pc_b1 = 1'b1;
@@ -686,7 +681,7 @@ wire Debug = 0;
                 end
             end
             if ((Auto_precharge[2] === 1'b1) && (Write_precharge[2] === 1'b1) && ($time - RAS_chk2 >= tRAS)) begin
-                if ((Burst_length_2 === 1'b1 && Count_precharge[2] >= 4) || 
+                if ((Burst_length_2 === 1'b1 && Count_precharge[2] >= 4) ||
                     (Burst_length_4 === 1'b1 && Count_precharge[2] >= 5) ||
                     (Burst_length_8 === 1'b1 && Count_precharge[2] >= 7)) begin
                     Pc_b2 = 1'b1;
@@ -698,7 +693,7 @@ wire Debug = 0;
                 end
             end
             if ((Auto_precharge[3] === 1'b1) && (Write_precharge[3] === 1'b1) && ($time - RAS_chk3 >= tRAS)) begin
-                if ((Burst_length_2 === 1'b1 && Count_precharge[3] >= 4) || 
+                if ((Burst_length_2 === 1'b1 && Count_precharge[3] >= 4) ||
                     (Burst_length_4 === 1'b1 && Count_precharge[3] >= 5) ||
                     (Burst_length_8 === 1'b1 && Count_precharge[3] >= 7)) begin
                     Pc_b3 = 1'b1;
@@ -726,6 +721,7 @@ wire Debug = 0;
             end
         end
 
+            /* verilator lint_off STMTDLY */
         #0.001;                                                     // Delay for Dqs to go HiZ then accept new internal Dqs
 
         // Dqs Generator
@@ -775,13 +771,10 @@ wire Debug = 0;
         end
     endtask
 
-   always@(Rw_command) Latch_address;
-   always@(Sys_clk)begin
-      wait(Rw_command);
-   end
     // Read or Write command waiting for posedge DQS
-    always @ (Sys_clk/*Rw_command or Sys_clk or posedge Dqs*/) begin//edited_by_SAM
+    always @ (Rw_command) begin
         if (Rw_command === `READ || Rw_command === `READ_A) begin
+            Latch_address;
             @ (Sys_clk);
             Bank = Bank_dqs;
             Row = Row_dqs;
@@ -791,6 +784,7 @@ wire Debug = 0;
             Data_in_enable = 1'b0;
             Data_out_enable = 1'b1;
         end else if (Rw_command === `WRITE || Rw_command === `WRITE_A) begin
+            Latch_address;
             @ (posedge Dqs);
             Bank = Bank_dqs;
             Row = Row_dqs;
@@ -805,12 +799,13 @@ wire Debug = 0;
     // DQS buffer (Driver/Receiver)
     always @ (Dqs) begin
         #0.001;                                                     // Delay to avoid race condition with Rw_command
+	    /* verilator lint_on STMTDLY*/
         if (Data_in_enable === 1'b1) begin                          // Writing Data to Memory
             // Array buffer
             if (Bank == 2'b00) Dq_dm [15 : 0] = Bank0 [{Row, Col}];
-            else if (Bank == 2'b01) Dq_dm [15 : 0] = Bank1 [{Row, Col}];
-            else if (Bank == 2'b10) Dq_dm [15 : 0] = Bank2 [{Row, Col}];
-            else if (Bank == 2'b11) Dq_dm [15 : 0] = Bank3 [{Row, Col}];
+            if (Bank == 2'b01) Dq_dm [15 : 0] = Bank1 [{Row, Col}];
+            if (Bank == 2'b10) Dq_dm [15 : 0] = Bank2 [{Row, Col}];
+            if (Bank == 2'b11) Dq_dm [15 : 0] = Bank3 [{Row, Col}];
             // Dqm operation
             if (Dm[0] == 1'b0) Dq_dm [ 7 : 0] = Dq [ 7 : 0];
             if (Dm[1] == 1'b0) Dq_dm [15 : 8] = Dq [15 : 8];
@@ -823,7 +818,7 @@ wire Debug = 0;
             if (Dm == 2'b11) begin
                 if (Debug) $display("at time %t WRITE: Bank = %d Row = %d, Col = %d, Data = Hi-Z due to DM", $time, Bank, Row, Col);
             end else begin
-                if (Debug) $display("at time %t WRITE: Bank = %d Row = %d, Col = %d, Data = %h, Dm = %b", $time, Bank, Row, Col, Dq_dm, Dm);
+                if (Debug) $display("at time %t WRITE: Bank = %d Row = %d, Col = %d, Data = %d, Dm = %b", $time, Bank, Row, Col, Dq_dm, Dm);
                 // Record tWR time
                 WTR_chk = 0;
                 WR_chk [Bank] = 0;
@@ -833,16 +828,16 @@ wire Debug = 0;
         end else if (Data_out_enable === 1'b1) begin                // Reading Data from Memory
             if (Bank === 2'b00) begin
                 Dq_out = Bank0[{Row, Col}];
-                if (Debug) $display("at time %t READ : Bank = 0 Row = %d, Col = %d, Data = %h", $time, Row, Col, Dq_out);
+                if (Debug) $display("at time %t READ : Bank = 0 Row = %d, Col = %d, Data = %d", $time, Row, Col, Dq_out);
             end else if (Bank === 2'b01) begin
                 Dq_out = Bank1[{Row, Col}];
-                if (Debug) $display("at time %t READ : Bank = 1 Row = %d, Col = %d, Data = %h", $time, Row, Col, Dq_out);
+                if (Debug) $display("at time %t READ : Bank = 1 Row = %d, Col = %d, Data = %d", $time, Row, Col, Dq_out);
             end else if (Bank === 2'b10) begin
                 Dq_out = Bank2[{Row, Col}];
-                if (Debug) $display("at time %t READ : Bank = 2 Row = %d, Col = %d, Data = %h", $time, Row, Col, Dq_out);
+                if (Debug) $display("at time %t READ : Bank = 2 Row = %d, Col = %d, Data = %d", $time, Row, Col, Dq_out);
             end else if (Bank === 2'b11) begin
                 Dq_out = Bank3[{Row, Col}];
-                if (Debug) $display("at time %t READ : Bank = 3 Row = %d, Col = %d, Data = %h", $time, Row, Col, Dq_out);
+                if (Debug) $display("at time %t READ : Bank = 3 Row = %d, Col = %d, Data = %d", $time, Row, Col, Dq_out);
             end
             Burst;
         end else begin
@@ -893,24 +888,14 @@ wire Debug = 0;
         end
     endtask
 
-//    // Timing Check for 100 MHz Devices
-//    specify
-//	  specparam
-//		      tCH =  4.5,                                     // Clock High-Level Width
-//		      tCL =  4.5,                                     // Clock Low-Level Width
-//		      tCK = 10.0,                                     // Clock Cycle Time
-//		      tDH =  0.53,                                    // Data-in Hold Time
-//		      tDS =  0.53,                                    // Data-in Setup Time
-//		      tIH =  1.1,                                     // Input Hold Time
-//		      tIS =  1.1;                                     // Input Setup Time
-       // Timing Check for 133 MHz Devices
-    /*specify
+    // Timing Check for 100 MHz Devices
+    specify
         specparam
-                    tCH =  3.37,                                     // Clock High-Level Width
-                    tCL =  3.37,                                     // Clock Low-Level Width
-                    tCK =  7.5,                                     // Clock Cycle Time
-                    tDH =  0.5,                                    // Data-in Hold Time
-                    tDS =  0.5,                                    // Data-in Setup Time
+                    tCH =  4.5,                                     // Clock High-Level Width
+                    tCL =  4.5,                                     // Clock Low-Level Width
+                    tCK = 10.0,                                     // Clock Cycle Time
+                    tDH =  0.53,                                    // Data-in Hold Time
+                    tDS =  0.53,                                    // Data-in Setup Time
                     tIH =  1.1,                                     // Input Hold Time
                     tIS =  1.1;                                     // Input Setup Time
         $width    (posedge Clk,          tCH     );
@@ -928,7 +913,8 @@ wire Debug = 0;
         $setuphold(negedge Dq_in, Dq,    tDS, tDH);
         $setuphold(posedge Dq_in, Dm,    tDS, tDH);
         $setuphold(negedge Dq_in, Dm,    tDS, tDH);
-    endspecify*/
+    endspecify
 
 endmodule
+
 

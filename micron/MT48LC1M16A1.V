@@ -98,7 +98,7 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
 
     reg                           Bank, Previous_bank;
     reg       [addr_bits - 1 : 0] Row;
-    reg        [col_bits - 1 : 0] Col, Col_brst;
+    reg        [col_bits - 1 : 0] Col/*verilator split_var*/, Col_brst;
 
     // Internal system clock
     reg                           CkeZ, Sys_clk;
@@ -126,7 +126,7 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     // Write Burst Mode
     wire      Write_burst_mode = Mode_reg[9];
 
-    wire      Debug            = 1'b1;                          // Turn on Debug messages
+    wire      Debug            = 1'b0;                          // Turn on Debug messages
     wire      Dq_chk           = Sys_clk & Data_in_enable;      // Check setup/hold time for DQ
 
     assign    Dq               = Dq_reg;                        // DQ buffer
@@ -678,7 +678,9 @@ module mt48lc1m16a1 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 WR_chk[Bank] = 0;
             end
             // Advance burst counter
-            #tOH Burst;
+            /* verilator lint_off STMTDLY */
+	    #tOH Burst;
+	    /* verilator lint_on STMTDLY*/
         end else if (Data_out_enable == 1'b1) begin                         // Reading Data from Memory
             if (Dqm_reg0 [1 : 0] == 2'b11) begin
                 Dq_reg = #tHZ {data_bits{1'bz}};

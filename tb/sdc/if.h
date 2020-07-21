@@ -2,17 +2,49 @@
 #define _SDC_IF
 
 #include "systemc.h"
-class if_sdc{
+class if_sdc : public sc_module{
    public:
+      SC_HAS_PROCESS(if_sdc);
+
+      if_sdc(sc_module_name name):
+	 sc_module(name),           sclk("sclk"),              srst("srst"),
+	 req("req"),                wr_rd("wr_rd"),            req_ack("req_ack"),
+	 rd_v("rd_v"),              wr_nxt("wr_nxt"),          init_f("init_f"),
+	 sdr_en("sdr_en"),          sdc_sel("sdc_sel"),        wdata("wdata"),
+	 rdata("rdata"),            sdr_twr_d("sdr_twr_d"),    sdr_tras_d("sdr_tras_d"),
+	 sdr_trp_d("sdr_trp_d"),    sdr_trcd_d("sdr_trcd_d"),
+	 sdr_trca_d("sdr_trca_d"),  sdr_cas("sdr_cas"),
+	 sdr_rfrsh("sdr_rfrsh"),    sdr_rfmax("sdr_rfmax"),    req_len("req_len"),
+	 dt_mask("dt_mask"),        m_reg("m_reg"),            addr("addr")
+      {
+	 SC_THREAD(sync);
+	 sensitive
+	    << sclk.default_event()	    << srst.default_event()
+	    << req.default_event()	    << wr_rd.default_event()
+	    << req_ack.default_event()	    << rd_v.default_event()
+	    << wr_nxt.default_event()	    << init_f.default_event()
+	    << sdr_en.default_event()	    << sdc_sel.default_event()
+	    << wdata.default_event()	    << rdata.default_event()
+	    << sdr_twr_d.default_event()    << sdr_tras_d.default_event()
+	    << sdr_trp_d.default_event()    << sdr_trcd_d.default_event()
+	    << sdr_trca_d.default_event()   << sdr_cas.default_event()
+	    << sdr_rfrsh.default_event()    << sdr_rfmax.default_event()
+	    << req_len.default_event()	    << dt_mask.default_event()
+	    << m_reg.default_event()	    << addr.default_event();
+      }
+
       sc_signal<bool>        sclk,   srst,   req,         wr_rd,      
-	 req_ack,     rd_v,  wr_nxt, init_f, sdr_en;
-      sc_signal<uint32_t>    wdata,  rdata,  sdr_tras_d,  sdr_trp_d,  sdr_trcd_d,
-	 sdr_cas,            sdr_trca_d,     sdr_twr_d,   sdr_rfrsh,  sdr_rfmax;
+	 req_ack,     rd_v,  wr_nxt, init_f, sdr_en,      sdc_sel;
+      sc_signal<uint32_t>    wdata,  rdata,  sdr_twr_d,   sdr_tras_d,  sdr_trp_d,
+	 sdr_trcd_d,         sdr_trca_d,     sdr_cas,     sdr_rfrsh,   sdr_rfmax;
       sc_signal<sc_bv<2> >   req_len;
       sc_signal<sc_bv<4> >   dt_mask;
       sc_signal<sc_bv<12> >  m_reg;
       sc_signal<sc_bv<23> >  addr;
 
-      if_sdc(){}
-}
+      void sync(){
+	 wait(SC_ZERO_TIME);
+      }
+
+};
 #endif

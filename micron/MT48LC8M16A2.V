@@ -178,14 +178,12 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
     end
 
     // System clock generator
-    always begin
-        @ (posedge Clk) begin
+    always @ (posedge Clk) begin
             Sys_clk = CkeZ;
             CkeZ = Cke;
         end
-        @ (negedge Clk) begin
+    always @ (negedge Clk) begin
             Sys_clk = 1'b0;
-        end
     end
 
     always @ (posedge Sys_clk) begin
@@ -500,7 +498,7 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                     end else begin
                         Command[2] = `READ;
                     end
-                    Col_addr[2] = Addr;
+                    Col_addr[2] = Addr[8:0];
                     Bank_addr[2] = Ba;
                 end else if (Cas_latency_2 == 1'b1) begin
                     if (Addr[10] == 1'b1) begin
@@ -508,7 +506,7 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                     end else begin
                         Command[1] = `READ;
                     end
-                    Col_addr[1] = Addr;
+                    Col_addr[1] = Addr[8:0];
                     Bank_addr[1] = Ba;
                 end
 
@@ -524,7 +522,7 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 end else begin
                     Command[0] = `WRITE;
                 end
-                Col_addr[0] = Addr;
+                Col_addr[0] = Addr[8:0];
                 Bank_addr[0] = Ba;
 
                 // Write interrupt Write (terminate Write immediately)
@@ -646,7 +644,7 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
         end
 
         if (Data_out_enable == 1'b0) begin
-            Dq_reg <= #tOH {data_bits{1'bz}};
+            Dq_reg = #tOH {data_bits{1'bz}};
         end
 
         // Detect Read or Write command
@@ -709,6 +707,7 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 WR_counter [Bank] = 0;
             end
             // Advance burst counter subroutine
+            /* verilator lint_off STMTDLY */
             #tHZ Burst;
         end else if (Data_out_enable == 1'b1) begin                         // Reading Data from Memory
             // Array buffer
@@ -805,6 +804,7 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                     Write_precharge[3] = 1'b0;
                     RW_interrupt_write[3] = 1'b0;
                     #tWRa;                          // Wait for tWR
+	    /* verilator lint_on STMTDLY*/
                     Pc_b3 = 1'b1;
                     Act_b3 = 1'b0;
                     RP_chk3 = $time;

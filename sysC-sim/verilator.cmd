@@ -1,6 +1,7 @@
 --sc
 --trace
 -Wno-fatal
+--timescale-override 1ns/1ps
 +incdir+../rtl
-../rtl/SDC_TOP.v
-
++incdir+../micron
+sdc_agent.v
