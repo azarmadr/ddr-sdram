@@ -1,7 +1,8 @@
 #ifndef _SDC_IF
 #define _SDC_IF
 
-#include "systemc.h"
+#include <systemc>
+#include <uvm>
 class if_sdc : public sc_module{
    public:
       SC_HAS_PROCESS(if_sdc);
@@ -17,6 +18,9 @@ class if_sdc : public sc_module{
 	 sdr_rfrsh("sdr_rfrsh"),    sdr_rfmax("sdr_rfmax"),    req_len("req_len"),
 	 dt_mask("dt_mask"),        m_reg("m_reg"),            addr("addr")
       {
+	 SC_THREAD(req_ack_done);
+	 SC_THREAD(init_sdr);
+	 sensitive << m_reg.default_event();
 	 SC_THREAD(sync);
 	 sensitive
 	    << sclk.default_event()	    << srst.default_event()
@@ -45,6 +49,28 @@ class if_sdc : public sc_module{
       void sync(){
 	 wait(SC_ZERO_TIME);
       }
-
+      void req_ack_done(){
+	 while(1){
+	    wait(req_ack.posedge_event());
+	    req = 0;
+	 }
+      }
+      void init_sdr(){
+	 req        = 0;
+	 addr       = 0x80000;
+	 req_len    = 0;
+	 wr_rd      = 0;
+	 wdata      = 0x0;
+	 dt_mask    = 0x0;
+	 sdr_en     = 0;
+	 sdr_tras_d = 0b1111;
+	 sdr_trp_d  = 0b1000;
+	 sdr_trcd_d = 0b0011;
+	 sdr_trca_d = 0b1010;
+	 sdr_twr_d  = 0b0010;
+	 sdr_rfrsh  = 0x07f;
+	 sdr_rfmax  = 0b11;
+	 sdr_cas    = m_reg.range(6,4);
+      }
 };
 #endif

@@ -27,9 +27,18 @@ int sc_main(int argc, char* argv[]){
    top->mclk         (mclk);
    top->s_resetn     (vif->srst);
    top->sdc_req      (vif->req);
+   top->sdc_en       (vif->sdr_en);
+   top->sdc_req_wr_n (vif->wr_rd);
+   top->sdc_sel      (vif->sdc_sel);
+   top->sdc_tras_d   (vif->sdr_tras_d);
+   top->sdc_trp_d    (vif->sdr_trp_d);
+   top->sdc_trcd_d   (vif->sdr_trcd_d);
+   top->sdc_cas      (vif->sdr_cas);
+   top->sdc_trca_d   (vif->sdr_trca_d);
+   top->sdc_twr_d    (vif->sdr_twr_d);
+   top->sdc_rfmax    (vif->sdr_rfmax);
    top->sdc_req_adr  (vif->addr);
    top->sdc_req_len  (vif->req_len);
-   top->sdc_req_wr_n (vif->wr_rd);
    top->sdc_req_ack  (vif->req_ack);
    top->sdc_rd_valid (vif->rd_v);
    top->sdc_wr_next  (vif->wr_nxt);
@@ -37,16 +46,8 @@ int sc_main(int argc, char* argv[]){
    top->sdc_wr_en_n  (vif->dt_mask);
    top->sdc_rd_data  (vif->rdata);
    top->sdc_init_done(vif->init_f);
-   top->sdc_en       (vif->sdr_en);
    top->sdc_mode_reg (vif->m_reg);
-   top->sdc_tras_d   (vif->sdr_tras_d);
-   top->sdc_trp_d    (vif->sdr_trp_d);
-   top->sdc_trcd_d   (vif->sdr_trcd_d);
-   top->sdc_cas      (vif->sdr_cas);
-   top->sdc_trca_d   (vif->sdr_trca_d);
-   top->sdc_twr_d    (vif->sdr_twr_d);
    top->sdc_rfrsh    (vif->sdr_rfrsh);
-   top->sdc_rfmax    (vif->sdr_rfmax);
    //_sdram_if
    top->sdc_clk (vif->sclk);
 

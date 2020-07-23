@@ -1,4 +1,4 @@
-clear
+#clear
 verilator -f verilator.cmd
 cd obj_dir
 make -f Vsdc_agent.mk

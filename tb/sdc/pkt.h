@@ -1,13 +1,24 @@
 #ifndef _PACKET_H
 #define _PACKET_H
 
+#include <uvm>
 #include <vector>
-#include "systemc.h"
-struct pkt_sdr{
+#include <systemc>
+class pkt_sdr: public uvm_sequence_item{
+public:
    sc_uint<23>            addr;
    std::vector<uint32_t>  data;
    sc_uint<2>             req_len;
-   bool wr_rd;
+   sc_uint<12>            mode_reg;
+   bool                   sel,wr_rd;
+
+   UVM_OBJECT_UTILS(pkt_sdr);
+   pkt_sdr(const std::string name = "pkt sdr")
+      :uvm_sequence_item(name){
+      addr    = 0x080000;
+      data    = {};
+      wr_rd   = 0;
+      req_len = 0;
    inline bool operator == (const pkt_sdr& rhs) const{
       return(req_len == rhs.req_len && addr == rhs.addr && data == rhs.data);
    }
