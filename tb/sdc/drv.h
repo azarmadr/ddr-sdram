@@ -13,7 +13,6 @@ class drv_sdc: public uvm_driver<pkt_sdr>{
    protected:
       void driver();
       void check_rst();
-   private:
       if_sdc* vif;
 };
 void drv_sdc::build_phase(uvm_phase& phase){
@@ -23,17 +22,19 @@ void drv_sdc::build_phase(uvm_phase& phase){
 	    get_full_name());
 }
 void drv_sdc::run_phase(uvm_phase& phase){
-   std::vector<sc_process_handle> rp_h;
-   rp_h.push_back( sc_spawn( sc_bind( 
-	       &drv_sdc::driver,   this)));
-   rp_h.push_back( sc_spawn( sc_bind( 
-	       &drv_sdc::check_rst,this)));
-   sc_event_or_list terminated_rp;
-   for(auto &rh: rp_h)
-      terminated_rp |= rh.terminated_event();
-   wait(terminated_rp);
-   for(auto &rh: rp_h)
-      rh.kill();
+   while(1){
+      std::vector<sc_process_handle> rp_h;
+      rp_h.push_back( sc_spawn( sc_bind( 
+		  &drv_sdc::driver,   this)));
+      rp_h.push_back( sc_spawn( sc_bind( 
+		  &drv_sdc::check_rst,this)));
+      sc_event_or_list terminated_rp;
+      for(auto &rh: rp_h)
+	 terminated_rp |= rh.terminated_event();
+      wait(terminated_rp);
+      for(auto &rh: rp_h)
+	 rh.kill();
+   }
 }
 void drv_sdc::check_rst(){
    wait(vif->srst.negedge_event());
@@ -56,7 +57,7 @@ void drv_sdc::driver(){
       vif->sdc_sel.write(rsp.sel);
       
       wait(
-	    vif->wr_nxt.posedge_event()|
+	    vif->wr_nxt.posedge_event()||
 	    vif->rd_v  .posedge_event());
       while(vif->wr_nxt || vif->rd_v){
 	 if(rsp.wr_rd)
