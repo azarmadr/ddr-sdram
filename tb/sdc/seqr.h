@@ -4,10 +4,10 @@
 #include <systemc>
 #include <uvm>
 
-class sdc_sequencer: public uvm_sequencer<pkt_sdr>{
+class seqr_sdc: public uvm_sequencer<pkt_sdr>{
 public:
-   UVM_COMPONENT_UTILS(sdc_sequencer);
-   sdc_sequencer(uvm_component_name name)
+   UVM_COMPONENT_UTILS(seqr_sdc);
+   seqr_sdc(uvm_component_name name)
    :uvm_sequencer<pkt_sdr>(name) {}
 }
 #endif

@@ -3,7 +3,9 @@
 
 #include "sdc/mon.h"
 #include "sdc/drv.h"
-SC_MODULE(agent_sdc){
+#include "sdc/seqr.h"
+class agent_sdc: uvm_agent{
+public:
    //if_sdc  vif;
    drv_sdc drv;
    mon_sdc mon;
