@@ -68,6 +68,8 @@ void drv_sdc::driver(){
 	 }
 	 wait(vif->sclk.posedge_event());
       }
+      this->seq_item_port.item_done();
+      this->seq_item_port.put_response(rsp);
    }
 }
 #endif

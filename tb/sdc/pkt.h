@@ -22,41 +22,39 @@ public:
    inline bool operator == (const pkt_sdr& rhs) const{
       return(req_len == rhs.req_len && addr == rhs.addr && data == rhs.data);
    }
+   std::string convert2string() const;
 };
-inline ostream& operator << (ostream& os, const pkt_sdr& p){
-   os<<"_SDC_Packet"<<endl;
-   os<<p.addr<<endl;
-   if(p.wr_rd){
-      os<<"read";
-   } else {
-      os<<"write";
-   }
-   for(uint32_t kv: p.data)   os<<kv<<" ";
-   os<<endl;
-   os<<"_Burst_type"<<p.req_len;
-   return os;
-}
-//void rand_pkt(){
-void pkt_gen(pkt_sdr* p, sc_uint<12> r){
-   int l;
-   p->addr   =rand();//should change later to accomodate
-   p->req_len=rand();//testcases
-   p->wr_rd  =rand();
+std::string convert2string() const{
+   std::ostreamstring msg;
+   msg<<get_sequence_path()
+      <<"addr  : "<< addr
+      <<"len   : "<< req_len
+      <<"mode  : "<< mode_reg
+      <<"wr/rd : "<<(wr_rd ? "READ"  : "WRITE")
+      <<"rate  : "<<(sel   ? "SDRAM" : "DDR")
+      <<"data  : "<< data.size()<<endl;
 
-   if(p->wr_rd){
-      if (r.range(2,0) == 7)
-	 l=2^(2+p->req_len);
-      else{
-	 int k;
-	 l=1;
-	 k=(p->req_len-(r.range(1,0))+1)%8;
-	 if(r[0]) l*=2;
-	 if(r[1]) l*=4;
-	 l*=2^k;
-      }
-      for(int i=0;i<l;i++){
-	 p->data.push_back(rand());
-      }
+   for(auto d: rsp->data) msg
+      <<d <<"  ";
+   return msg.str();
+}
+std::vector<uint32_t> pkt_gen(bool wr, sc_uint<12> r, unsigned int len){
+   int l;
+   std::vector<uint32_t> data;
+   if(wr) return
+   if (r.range(2,0) == 7)
+      l=2^(2+len);
+   else{
+      int k;
+      l=1;
+      k=(len-(r.range(1,0))+1)%8;
+      if(r[0]) l*=2;
+      if(r[1]) l*=4;
+      l*=2^k;
    }
+   for(int i=0;i<l;i++){
+      data.push_back(rand());
+   }
+   return data;
 }
 #endif
