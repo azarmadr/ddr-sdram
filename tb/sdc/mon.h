@@ -1,8 +1,8 @@
 #ifndef _SDC_MON
 #define _SDC_MON
 
-#include "sdc/if.h"
-#include "sdc/pkt.h"
+#include "tb/sdc/if.h"
+#include "tb/sdc/pkt.h"
 class mon_sdc: uvm_monitor{
    public:
       uvm_analysis_port<pkt_sdr> sdc_ap;

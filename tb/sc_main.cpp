@@ -3,7 +3,8 @@
 #include <sys/times.h>
 #include <sys/stat.h>
 
-#include "systemc.h"
+#include <systemc>
+#include <uvm>
 #include "verilated.h"
 #include "verilated_vcd_sc.h"
 

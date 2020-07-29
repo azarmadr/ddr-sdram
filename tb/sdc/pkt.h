@@ -4,6 +4,9 @@
 #include <uvm>
 #include <vector>
 #include <systemc>
+using namespace uvm;
+using namespace sc_dt;
+using namespace sc_core;
 class pkt_sdr: public uvm_sequence_item{
 public:
    sc_uint<23>            addr;
@@ -19,29 +22,29 @@ public:
       data    = {};
       wr_rd   = 0;
       req_len = 0;
+   }
    inline bool operator == (const pkt_sdr& rhs) const{
       return(req_len == rhs.req_len && addr == rhs.addr && data == rhs.data);
    }
-   std::string convert2string() const;
-};
-std::string convert2string() const{
-   std::ostreamstring msg;
-   msg<<get_sequence_path()
-      <<"addr  : "<< addr
-      <<"len   : "<< req_len
-      <<"mode  : "<< mode_reg
-      <<"wr/rd : "<<(wr_rd ? "READ"  : "WRITE")
-      <<"rate  : "<<(sel   ? "SDRAM" : "DDR")
-      <<"data  : "<< data.size()<<endl;
+   std::string convert2string() const{
+      std::ostringstream msg;
+      msg<<get_sequence_path()
+	 <<"addr  : "<< addr
+	 <<"len   : "<< req_len
+	 <<"mode  : "<< mode_reg
+	 <<"wr/rd : "<<(wr_rd ? "READ"  : "WRITE")
+	 <<"rate  : "<<(sel   ? "SDRAM" : "DDR")
+	 <<"data  : "<< data.size()<<std::endl;
 
-   for(auto d: rsp->data) msg
-      <<d <<"  ";
-   return msg.str();
-}
+      for(auto d: data) msg
+	 <<d <<"  ";
+      return msg.str();
+   }
+};
 std::vector<uint32_t> pkt_gen(bool wr, sc_uint<12> r, unsigned int len){
    int l;
    std::vector<uint32_t> data;
-   if(wr) return
+   if (wr) return
    if (r.range(2,0) == 7)
       l=2^(2+len);
    else{

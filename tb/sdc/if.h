@@ -3,6 +3,9 @@
 
 #include <systemc>
 #include <uvm>
+using namespace uvm;
+using namespace sc_dt;
+using namespace sc_core;
 class if_sdc : public sc_module{
    public:
       SC_HAS_PROCESS(if_sdc);
@@ -70,7 +73,7 @@ class if_sdc : public sc_module{
 	 sdr_twr_d  = 0b0010;
 	 sdr_rfrsh  = 0x07f;
 	 sdr_rfmax  = 0b11;
-	 sdr_cas    = m_reg.range(6,4);
+	 m_reg.read(sdr_cas).range(6,4);
       }
 };
 #endif

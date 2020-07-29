@@ -13,20 +13,20 @@ public:
    }
    UVM_OBJECT_UTILS(sdc_base_s);
 };
-class sdc3bl8_wr_s: public sdc_base_s{
+class sdc3bl8_s: public sdc_base_s{
 public:
-   unsigned int addr;
-   unsigned int len;
-   unsigned int wr;
+   sc_uint<23> addr;
+   sc_uint<2 > len;
+   bool        wr;
    pkt_sdr* req{nullptr};
    pkt_sdr* rsp{nullptr};
 
-   sdc3bl8_wr_s(const std::string& name="sdc3bl8_wr_s")
+   sdc3bl8_s(const std::string& name="sdc3bl8_s")
    : uvm_sequence<pkt_sdr>(name), addr(0), len(0){
       req = pkt_sdr::type_id::create();
       rsp = pkt_sdr::type_id::create();
    }
-   UVM_OBJECT_UTILS(sdc3bl8_wr_s);
+   UVM_OBJECT_UTILS(sdc3bl8_s);
    virtual void body(){
       req->addr     = addr;
       req->req_len  = len;
@@ -41,7 +41,7 @@ public:
 
       UVM_INFO(get_type_name(), rsp.convert2string(), UVM_HIGH);      
    }
-   ~sdc3bl8_wr_s(){
+   ~sdc3bl8_s(){
       pkt_sdr::type_id::destroy(req);
       pkt_sdr::type_id::destroy(rsp);
    }
