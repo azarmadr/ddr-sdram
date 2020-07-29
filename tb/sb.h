@@ -5,7 +5,7 @@
 #include <uvm>
 #include <map>
 #include <sstream>
-#include "sdc/agent.h"
+#include "tb/sdc/agent.h"
 using namespace uvm;
 
 class sb_sdr: public uvm_scoreboard{

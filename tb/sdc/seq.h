@@ -3,8 +3,10 @@
 
 #include <uvm>
 #include <systemc>
+using namespace uvm;
+using namespace sc_dt;
 
-#include "sdc/pkt.h"
+#include "tb/sdc/pkt.h"
 class sdc_base_s: public uvm_sequence<pkt_sdr>{
 public:
    sdc_base_s(const std::string& name="sdc_base_s")
@@ -22,7 +24,7 @@ public:
    pkt_sdr* rsp{nullptr};
 
    sdc3bl8_s(const std::string& name="sdc3bl8_s")
-   : uvm_sequence<pkt_sdr>(name), addr(0), len(0){
+   : sdc_base_s(name), addr(0), len(0){
       req = pkt_sdr::type_id::create();
       rsp = pkt_sdr::type_id::create();
    }
@@ -39,7 +41,7 @@ public:
       finish_item (req);
       get_response(rsp);
 
-      UVM_INFO(get_type_name(), rsp.convert2string(), UVM_HIGH);      
+      UVM_INFO(get_type_name(), rsp->convert2string(), UVM_HIGH);
    }
    ~sdc3bl8_s(){
       pkt_sdr::type_id::destroy(req);

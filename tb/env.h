@@ -3,11 +3,8 @@
 
 #include <systemc>
 #include <uvm>
+#include "tb/sdc/agent.h"
 using namespace uvm;
-
-//_forward_declerations
-class if_sdc;
-class agent_sdc;
 
 class env_sdr: uvm_env{
 public:

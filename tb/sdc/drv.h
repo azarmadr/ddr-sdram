@@ -1,8 +1,8 @@
 #ifndef _SDC_DRV
 #define _SDC_DRV
 
-#include "sdc/pkt.h"
-#include "sdc/if.h"
+#include "tb/sdc/pkt.h"
+#include "tb/sdc/if.h"
 class drv_sdc: public uvm_driver<pkt_sdr>{
    public:
       UVM_COMPONENT_UTILS(drv_sdc);
@@ -57,7 +57,7 @@ void drv_sdc::driver(){
       vif->sdc_sel.write(rsp.sel);
       
       wait(
-	    vif->wr_nxt.posedge_event()||
+	    vif->wr_nxt.posedge_event()|
 	    vif->rd_v  .posedge_event());
       while(vif->wr_nxt || vif->rd_v){
 	 if(rsp.wr_rd)

@@ -5,8 +5,8 @@
 #include <uvm>
 #include <sstream>
 
-#include "sdc/agent.h"
-#include "sdc/seq.h"
+#include "tb/sdc/agent.h"
+#include "tb/sdc/seq.h"
 
 class sdc3bl8_s_rw: public sdc_base_s{
 public:

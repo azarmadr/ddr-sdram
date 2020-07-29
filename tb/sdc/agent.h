@@ -4,6 +4,7 @@
 #include "tb/sdc/mon.h"
 #include "tb/sdc/drv.h"
 #include "tb/sdc/seqr.h"
+
 class agent_sdc: uvm_agent{
 public:
    //if_sdc  vif;
@@ -28,7 +29,7 @@ public:
    }
    void connect_phase(uvm_phase& phase){
       if(get_is_active()==UVM_ACTIVE)
-	 drv->seq_item_port.connect(seqr.seq_item_export);
+	 drv->seq_item_port.connect(seqr->seq_item_export);
    }
 };
 #endif

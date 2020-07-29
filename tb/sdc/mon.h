@@ -20,7 +20,7 @@ class mon_sdc: uvm_monitor{
 	 wait(vif->srst.posedge_event());
 	 while(1){
 	    wait(
-		  vif->init_f.posedge_event() &&
+		  vif->init_f.posedge_event() &
 		  vif->req   .posedge_event());
 
 	    this->begin_tr(tr);
@@ -30,7 +30,7 @@ class mon_sdc: uvm_monitor{
 	    tr.mode_reg= vif->m_reg.    read();
 
 	    wait(
-		  vif->wr_nxt.posedge_event() ||
+		  vif->wr_nxt.posedge_event() |
 		  vif->rd_v  .posedge_event());
 
 	    while(vif->wr_nxt || vif->rd_v){
