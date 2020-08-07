@@ -32,13 +32,14 @@ public:
    virtual void body(){
       req->addr     = addr;
       req->req_len  = len;
-      req->mode_reg = 0x023;
+      req->mode_reg = 0x033;
       req->sel      = 1;
       req->wr_rd    = wr;
-      req->data     = pkt_gen(wr, 0x023, len);
+      req->data     = pkt_gen(wr, 0x033, len);
       
       start_item  (req);
       finish_item (req);
+      UVM_INFO(get_type_name(), "____", UVM_HIGH);
       get_response(rsp);
 
       UVM_INFO(get_type_name(), rsp->convert2string(), UVM_HIGH);

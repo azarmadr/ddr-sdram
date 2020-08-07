@@ -141,7 +141,7 @@ wire DrdOvf =  (bl==9'h02) ? ((!sdr_req_wr_n) ? (AdrCnt >= DDRCOLS-12'h003):(Adr
  wire pDc3bl2   = (!sdr_req_wr_n&!sdc_sel&(StWrRd1&(StWrRd^StWrRd1)));
  wire EAP 	= 	(enAp)|((burst_2) ? pDc3bl2 :StWrRd1&rdOvf);
 
- wire auto_prech= (!burst_p & StWrRd) ? sdc_ad[10]: 1'b0;   // check prech bit in adr
+ wire auto_prech  = (!burst_p & StWrRd) ? sdc_ad[10]: 1'b0;   // check prech bit in adr
 
  									//->!!29/8/02-17.00
  wire SrdOF = (burst_4&c2)? (SrdOvfD^SrdOvf)&SrdOvfD :

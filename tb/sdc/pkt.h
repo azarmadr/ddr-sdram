@@ -29,23 +29,23 @@ public:
    std::string convert2string() const{
       std::ostringstream msg;
       msg<<get_sequence_path()
-	 <<"addr  : "<< addr
-	 <<"len   : "<< req_len
-	 <<"mode  : "<< mode_reg
-	 <<"wr/rd : "<<(wr_rd ? "READ"  : "WRITE")
-	 <<"rate  : "<<(sel   ? "SDRAM" : "DDR")
-	 <<"data  : "<< data.size()<<std::endl;
+         <<"addr  : "<< addr
+         <<"len   : "<< req_len
+         <<"mode  : "<< mode_reg
+         <<"wr/rd : "<<(wr_rd ? "READ"  : "WRITE")
+         <<"rate  : "<<(sel   ? "SDRAM" : "DDR")
+         <<"data  : "<< data.size()<<std::endl;
 
       for(auto d: data) msg
-	 <<d <<"  ";
+         <<d <<"  ";
       return msg.str();
    }
 };
 std::vector<uint32_t> pkt_gen(bool wr, sc_uint<12> r, unsigned int len){
    int l;
    std::vector<uint32_t> data;
-   if (wr) return
-   if (r.range(2,0) == 7)
+   if (wr) return {};
+   if (r.range(2,0) == 0x7)
       l=2^(2+len);
    else{
       int k;

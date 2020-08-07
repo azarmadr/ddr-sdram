@@ -22,13 +22,15 @@ VM_USER_DIR = \
 
 CPPFLAGS += -I..
 CPPFLAGS += -I.
-CPPFLAGS += -I../../tb
-CPPFLAGS += -DVL_DEBUG
+CPPFLAGS += -I../..
+#CPPFLAGS += -DVL_DEBUG
 CPPFLAGS += -I$(SYSTEMC_HOME)/include
+CPPFLAGS += -I$(UVMSC_INCLUDE)
 CPPFLAGS += -I$(VERILATOR_ROOT)/include
 
 OBJS     := $(wildcard *.o)
 LIBFLAGS  = -L$(SYSTEMC_HOME)/lib-linux64
+LIBFLAGS += -L$(UVMSC_ROOT)/lib-linux64
 
 include V$(PROJECT)_classes.mk
 include $(VERILATOR_ROOT)/include/verilated.mk
@@ -41,8 +43,9 @@ obj: $(cppo)
 
 $(cppo): %.o: ../../tb/%.cpp
 	 $(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
 fin:
-	$(OBJCACHE) $(CXX) -DVL_DEBUG $(LIBFLAGS) $(OBJS) -o $(PROJECT) -lsystemc
+	$(OBJCACHE) $(CXX) -DVL_DEBUG $(LIBFLAGS) $(OBJS) -o $(PROJECT) -lsystemc -luvm-systemc
 	./$(PROJECT)
 
 all: obj ver fin

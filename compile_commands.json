@@ -1,0 +1,18 @@
+[
+    {
+        "arguments": [
+            "g++",
+            "-c",
+            "-I.",
+            "-I./sysC-sim/obj_dir",
+            "-I/mnt/c/Users/madaz/Documents/systemC/systemc-2.3.3/include",
+            "-I/mnt/c/Users/madaz/Documents/systemC/uvm-systemc-1.0-beta3/include",
+            "-I/mnt/c/Users/madaz/Documents/systemC/verilator/include",
+            "-o",
+            "sc_main.o",
+            "sc_main.cpp"
+        ],
+        "directory": "/mnt/c/Users/madaz/Documents/sv/ddr_sdram_controller",
+        "file": "sc_main.cpp"
+    }
+]

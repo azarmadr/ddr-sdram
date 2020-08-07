@@ -180,7 +180,9 @@ reg  [ 2:0]  beat;
 reg  [ 7:0]  byte;
 reg  [ 7:0]  bustNT;
 reg  [ 7:0]  bustN;
-wire [ 1:0]  sft;
+wire [ 1:0]  sft	= (bl==4'h8) ? 2'b11:
+		          (bl==4'h4) ? 2'b10:
+		          (bl==4'h2) ? 2'b01:2'b00;
 reg sdc_req_ack1,sdc_req_ack2,chk;
 
 wire burstPage = (sdc_mode_reg[2:0] == 3'b111);
@@ -200,9 +202,6 @@ begin
 		beat	 	= sdc_req_len + 3'b001;	//# of beat = len + 1
 		byte   	= (8'h08)  << beat;
 		bustNT 	= (byte)   >> 2;
-	        sft	= (bl==4'h8) ? 2'b11:
-		          (bl==4'h4) ? 2'b10:
-		          (bl==4'h2) ? 2'b01:2'b00;
 		bustN  	= (bustNT) >>sft ;
 end
 
@@ -261,6 +260,7 @@ if(debug)
 wait(sdc_init_done);
 	sdc_mode_reg     =  (sdc_init_done) ? mod_reg :12'h000;//_is_necessary?
 	sdc_cas			 = sdc_mode_reg[6:4];
+	$finish;
 end
  endtask
 
@@ -314,10 +314,6 @@ task sdram_write;
    #SClkTP;
    end
 endtask
-//always@(posedge sdc_rd_valid) $display("\nsdc.rd.valid@",$time);
-//always@(posedge sdc_wr_next) $display("\nsdc.wr.next@",$time);
-//always@(posedge sdc_req_ack) $display("\nsdc.req.ack@",$time);
-//always@(negedge sdc_req_ack) $display("\nsdc.req.ack@",$time);
 //-------------------------------------------------//
 task sdram_read;
    input [22:0]addr;
@@ -911,6 +907,6 @@ begin
               $dumpfile("sdram.vcd");
               $dumpvars();
            `endif
-	   #9333 $finish;
+	   //#9333 $finish;
 end
 endmodule

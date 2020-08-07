@@ -3,29 +3,49 @@
 #include <sys/times.h>
 #include <sys/stat.h>
 
-#include <systemc>
-#include <uvm>
+#include "tb/tb.h"
 #include "verilated.h"
 #include "verilated_vcd_sc.h"
 
 #include "Vsdc_agent.h"
-#include "sdr_tb.h"
+
+class stim : public sc_module
+{
+ public:
+  sc_out<bool> reset;
+
+  SC_HAS_PROCESS(stim);
+
+  stim(sc_module_name nm)
+  : sc_module(nm), reset("reset")
+  {
+    SC_THREAD(run_reset);
+  }
+
+  void run_reset()
+  {
+    reset.write(1);
+    wait(SC_ZERO_TIME);
+    reset.write(0);
+    wait(20.0, SC_NS);
+    reset.write(1);
+  }
+};
 
 int sc_main(int argc, char* argv[]){
-   Verilated::randReset(2);
+   uvm_set_verbosity_level(uvm::UVM_FULL);
+
    Verilated::debug(0);
 
-   //sc_set_time_resolution(100, SC_PS);
-   sc_get_time_resolution();
    sc_clock mclk("m-clk", 5, SC_NS);
 
    //_Sdc_interface
    if_sdc* vif = new if_sdc("vif");
+   uvm::uvm_config_db<if_sdc*>::set(uvm::uvm_root::get(),"*","vif",vif);
 
    //_Dut
    Vsdc_agent* top = new Vsdc_agent("top");
    //_host_if
-   top->mclk         (mclk);
    top->s_resetn     (vif->srst);
    top->sdc_req      (vif->req);
    top->sdc_en       (vif->sdr_en);
@@ -51,34 +71,28 @@ int sc_main(int argc, char* argv[]){
    top->sdc_rfrsh    (vif->sdr_rfrsh);
    //_sdram_if
    top->sdc_clk (vif->sclk);
+   top->mclk    (mclk);
 
-   //_tb
-   sdr_tb* tb = new sdr_tb("tb");
-   tb->connect_if(vif);
-   
+   stim tb_stim("tb_stim");
+   tb_stim.reset.bind(vif->srst);
+
    Verilated::traceEverOn(true);
 
-   vif->srst = 0;
-   sc_start(20,SC_NS);
+   //sc_trace_file* tf = sc_core::sc_create_vcd_trace_file("traces_sc");
+   //sc_trace(tf, vif->srst, "srst");
 
-   cout << "Enabling waves...\n";
    VerilatedVcdSc* tfp = new VerilatedVcdSc;
    top->trace (tfp, 99);
    tfp->open ("./vl.vcd");
 
-   for(int i;i<999;i++){//while(!sb_t->done){
-      tfp->flush();
-
-      vif->srst= 1;
-      sc_start(1,SC_NS);
-   }
+   uvm::run_test("sdc3bl8_rw_t");
 
    top->final();
+   tfp->flush();
    tfp->close();
 
    delete top;
    top = NULL;
 
    return 0;
-
 }

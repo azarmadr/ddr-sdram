@@ -707,7 +707,6 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                 WR_counter [Bank] = 0;
             end
             // Advance burst counter subroutine
-            /* verilator lint_off STMTDLY */
             #tHZ Burst;
         end else if (Data_out_enable == 1'b1) begin                         // Reading Data from Memory
             // Array buffer
@@ -804,7 +803,6 @@ module mt48lc8m16a2 (Dq, Addr, Ba, Clk, Cke, Cs_n, Ras_n, Cas_n, We_n, Dqm);
                     Write_precharge[3] = 1'b0;
                     RW_interrupt_write[3] = 1'b0;
                     #tWRa;                          // Wait for tWR
-	    /* verilator lint_on STMTDLY*/
                     Pc_b3 = 1'b1;
                     Act_b3 = 1'b0;
                     RP_chk3 = $time;

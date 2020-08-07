@@ -1,5 +1,6 @@
 `include"define.v"
 `include"SDC_TOP.v"
+//`include"ddr.v"
 //`include"mt46v4m16.v"
 //`include"MT48LC1M16A1.V"
 `include"MT48LC8M16A2.V"
@@ -13,7 +14,6 @@ module sdc_agent(
    sdc_clk,      sdc_req_ack,   sdc_rd_data,  sdc_rd_valid,
    sdc_wr_next,  sdc_init_done
 );
-
 //_tb_to_host
 input wire mclk,           s_resetn,   sdc_req;
 input wire sdc_en;
@@ -30,9 +30,8 @@ input wire [3:0]             sdc_trca_d,     sdc_twr_d;
 input wire [11:0]            sdc_rfrsh;
 input wire [2:0]             sdc_rfmax;
 
-output reg [`U_DATA_MSB:0] sdc_rd_data;
-output reg sdc_init_done;
-output reg sdc_req_ack,    sdc_rd_valid,  sdc_wr_next,  sdc_clk;
+output wire [`U_DATA_MSB:0] sdc_rd_data;
+output wire sdc_init_done, sdc_req_ack,    sdc_rd_valid,  sdc_wr_next,  sdc_clk;
 
 //_for_sdram
 wire [`SDC_ADDR_MSB:0] 	sdc_ad;
@@ -49,18 +48,25 @@ mt46v4m16 ddram(
    .Cke(sdc_cke), .Cs_n(sdc_csb), .Ras_n(sdc_rasb),
    .Cas_n(sdc_casb), .We_n(sdc_web), .Dm(sdc_dm[1:0])
 );*/
+/*(1Meg x 16 x 4 Banks)DDR	//......DDR SDRAM
+ddr ddram(
+   .Dq(sdc_dq[15:0]), .Dqs(sdc_dqs), .Addr(sdc_ad),
+   .Ba(sdc_ba), .Clk(sdc_clk), .Clk_n(~sdc_clk),
+   .Cke(sdc_cke), .Cs_n(sdc_csb), .Ras_n(sdc_rasb),
+   .Cas_n(sdc_casb), .We_n(sdc_web), .Dm(sdc_dm[1:0])
+);*/
 //(2Meg x 16 x 4 Banks)		 //.......SDR SDRAM -1-
 mt48lc8m16a2 sdram0(
    .Dq(sdc_dq[15:0]), .Addr(sdc_ad), .Ba(sdc_ba), .Clk(sdc_clk),
    .Cke(sdc_cke), .Cs_n(~sdc_csb), .Ras_n(sdc_rasb),
    .Cas_n(sdc_casb), .We_n(sdc_web), .Dqm(sdc_dm[1:0])
 );
-//(2Meg x 16 x 4 Banks)		 //.......SDR SDRAM -2-
+/*(2Meg x 16 x 4 Banks)		 //.......SDR SDRAM -2-
 mt48lc8m16a2 sdram1(
    .Dq(sdc_dq[31:16]), .Addr(sdc_ad), .Ba(sdc_ba), .Clk(sdc_clk),
    .Cke(sdc_cke), .Cs_n(~sdc_csb), .Ras_n(sdc_rasb),
    .Cas_n(sdc_casb), .We_n(sdc_web), .Dqm(sdc_dm[3:2])
-);
+);*/
 sdc_top CTLR_TOP(
    //====Interface to SDRAM=====
 

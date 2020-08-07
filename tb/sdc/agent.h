@@ -5,9 +5,8 @@
 #include "tb/sdc/drv.h"
 #include "tb/sdc/seqr.h"
 
-class agent_sdc: uvm_agent{
+class agent_sdc: public uvm_agent{
 public:
-   //if_sdc  vif;
    drv_sdc*   drv;
    mon_sdc*   mon;
    seqr_sdc*  seqr;

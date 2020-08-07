@@ -95,7 +95,7 @@ module mt46v4m16 (Dq, Dqs, Addr, Ba, Clk, Clk_n, Cke, Cs_n, Ras_n, Cas_n, We_n, 
     reg                           Data_in_enable/*verilator clock_enable*/;
     reg                           Data_out_enable/*verilator clock_enable*/;
 
-    reg                   [3 : 0] Rw_command;
+    reg                   [3 : 0] Rw_command/*verilator clock_enable*/;
     reg                   [1 : 0] Bank, Bank_dqs, Previous_bank;
     reg       [addr_bits - 1 : 0] Row, Row_dqs;
     reg        [col_bits - 1 : 0] Col/* verilator split_var*/, Col_dqs;
