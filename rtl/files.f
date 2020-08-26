@@ -1,0 +1,16 @@
+micron/ddr/ddr.v
+micron/ddr2/ddr2.v
+micron/mt46v4m16.v
+micron/MT46V4M16_.V
+micron/MT48LC1M16A1.V
+micron/MT48LC8M16A2.V
+define.v
+IOBUF_SSTL2_II.v
+state.v
+sdc_dq_io_64.v
+addr_latch.v
+data_path.v
+ref_chk.v
+sdc_bnkctlr.v
+SDC_TOP.v
+sdc_agent.v
