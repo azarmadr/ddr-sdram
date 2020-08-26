@@ -21,16 +21,16 @@ class mon_sdc: public uvm_monitor{
 void mon_sdc::monitor(){
    wait(vif->srst.posedge_event());
    while(1){
-      /*wait(
+      wait(
 	    vif->init_f.posedge_event() &
-	    vif->req.posedge_event());*/
+	    vif->req.posedge_event());
 
       this->begin_tr(tr);
-      tr.req_len = vif->req_len.  read();
-      tr.wr_rd   = vif->wr_rd.    read();
+      tr.req_len = vif->req_len.read();
+      tr.wr_rd   = vif->wr_rd  .read();
+      tr.sel     = vif->sdc_sel.read();
       tr.addr    = vif->addr;
-      tr.mode_reg= vif->m_reg.    read();
-
+      tr.mode_reg= vif->m_reg  .read();
       wait(
 	    vif->wr_nxt.posedge_event() |
 	    vif->rd_v  .posedge_event());

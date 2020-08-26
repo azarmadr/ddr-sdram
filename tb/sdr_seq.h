@@ -31,9 +31,10 @@ public:
       for(int i;i<3;i++){
          wr ^= 1;
          for(auto const &pair: addr_k){
-            seq->len  = pair.first;
-            seq->addr = pair.second;
-            seq->wr   = wr;
+            seq->len      = pair.first;
+	    seq->mode_reg = 0x037;
+            seq->addr     = pair.second;
+            seq->wr       = wr;
             seq->start(m_sequencer);
          }
       }

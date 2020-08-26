@@ -11,15 +11,15 @@ public:
    SC_HAS_PROCESS(if_sdc);
 
    if_sdc(sc_module_name name):
-      sc_module(name),           sclk("sclk"),              srst("srst"),
-      req("req"),                wr_rd("wr_rd"),            req_ack("req_ack"),
-      rd_v("rd_v"),              wr_nxt("wr_nxt"),          init_f("init_f"),
-      sdr_en("sdr_en"),          sdc_sel("sdc_sel"),        wdata("wdata"),
-      rdata("rdata"),            sdr_twr_d("sdr_twr_d"),    sdr_tras_d("sdr_tras_d"),
-      sdr_trp_d("sdr_trp_d"),    sdr_trcd_d("sdr_trcd_d"),
-      sdr_trca_d("sdr_trca_d"),  sdr_cas("sdr_cas"),
-      sdr_rfrsh("sdr_rfrsh"),    sdr_rfmax("sdr_rfmax"),    req_len("req_len"),
-      dt_mask("dt_mask"),        m_reg("m_reg"),            addr("addr")
+      sc_module(name),         sclk("sclk"),            srst("srst"),
+      req("req"),              wr_rd("wr_rd"),          req_ack("req_ack"),
+      rd_v("rd_v"),            wr_nxt("wr_nxt"),        init_f("init_f"),
+      sdr_en("sdr_en"),        sdc_sel("sdc_sel"),      wdata("wdata"),
+      rdata("rdata"),          sdr_twr_d("sdr_twr_d"),  sdr_tras_d("sdr_tras_d"),
+      sdr_trp_d("sdr_trp_d"),  sdr_trcd_d("sdr_trcd_d"),
+      sdr_trca_d("sdr_trca_d"),sdr_cas("sdr_cas"),
+      sdr_rfrsh("sdr_rfrsh"),  sdr_rfmax("sdr_rfmax"),  req_len("req_len"),
+      dt_mask("dt_mask"),      m_reg("m_reg"),          addr("addr")
    {
       SC_THREAD(req_ack_done);
       SC_THREAD(sync);
@@ -52,7 +52,9 @@ public:
       }
       void req_ack_done(){
          while(1){
-            wait(req_ack.posedge_event());
+	    wait(addr.default_event());
+	    req = 1;
+            wait(req_ack.posedge_event()|m_reg.default_event());
             req = 0;
          }
       }

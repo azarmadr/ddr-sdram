@@ -11,8 +11,8 @@ class drv_sdc: public uvm_driver<pkt_sdr>{
       void         build_phase(uvm_phase& phase);
       virtual void run_phase  (uvm_phase& phase);
    protected:
-      void driver();
       void init_sdr();
+      void driver();
       void check_rst();
       void run();
       if_sdc* vif;
@@ -25,7 +25,6 @@ void drv_sdc::build_phase(uvm_phase& phase){
 }
 void drv_sdc::run_phase(uvm_phase& phase){
    sc_spawn(sc_bind(&drv_sdc::run,this),"run");
-   sc_spawn(sc_bind(&drv_sdc::init_sdr,this),"init");
 }
 void drv_sdc::run(){
    while(1){
@@ -45,7 +44,6 @@ void drv_sdc::run(){
 void drv_sdc::init_sdr(){
    while(1){
       wait(vif->m_reg.default_event());//value_changed_event());
-      vif->req.write(0);
       vif->addr       = 0x80000;
       vif->req_len    = 0b00;
       vif->wr_rd      = 0;
@@ -78,20 +76,17 @@ void drv_sdc::driver(){
 
       vif->m_reg  .write(rsp.mode_reg);
       vif->sdc_sel.write(rsp.sel);
-      UVM_INFO(get_type_name(), "____", UVM_HIGH);
       wait(vif->sclk.posedge_event());
-      //wait(vif->init_f.posedge_event());
-      vif->req    .write(1);
+      vif->sdr_en .write(1);
       vif->wr_rd  .write(rsp.wr_rd);
       vif->req_len.write(rsp.req_len);
       vif->addr   .write(rsp.addr);
+      wait(vif->init_f.posedge_event());
       wait(
             vif->wr_nxt.posedge_event()|
             vif->rd_v  .posedge_event());
       while(vif->wr_nxt || vif->rd_v){
-         if(rsp.wr_rd)
-            rsp.data.push_back(vif->rdata.read());
-         else{
+         if(!rsp.wr_rd){
             vif->wdata.write(rsp.data.back());
             rsp.data.pop_back();
          }

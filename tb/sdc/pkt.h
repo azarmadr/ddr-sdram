@@ -29,12 +29,12 @@ public:
    std::string convert2string() const{
       std::ostringstream msg;
       msg<<get_sequence_path()
-         <<"addr  : "<< addr
-         <<"len   : "<< req_len
-         <<"mode  : "<< mode_reg
-         <<"wr/rd : "<<(wr_rd ? "READ"  : "WRITE")
-         <<"rate  : "<<(sel   ? "SDRAM" : "DDR")
-         <<"data  : "<< data.size()<<std::endl;
+         <<" addr  : "<< addr
+         <<" len   : "<< req_len
+         <<" mode  : "<< mode_reg
+         <<" wr/rd : "<<(wr_rd ? "READ"  : "WRITE")
+         <<" rate  : "<<(sel   ? "SDRAM" : "DDR")
+         <<" data  : "<< data.size()<<std::endl;
 
       for(auto d: data) msg
          <<d <<"  ";
