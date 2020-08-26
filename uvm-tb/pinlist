@@ -1,0 +1,26 @@
+!sdr_if
+sdc_clk       sclk
+mclk          mclk
+s_resetn      srst
+sdc_req       req
+sdc_req_wr_n  wr_rd
+sdc_req_ack   req_ack
+sdc_rd_valid  rd_v
+sdc_wr_next   wr_nxt
+sdc_init_done init_f
+sdc_en        sdr_en
+sdc_sel       sdr_sel
+sdc_rd_data   rdata
+sdc_wr_data   wdata
+sdc_twr_d     sdr_twr_d
+sdc_tras_d    sdr_tras_d
+sdc_trp_d     sdr_trp_d
+sdc_trcd_d    sdr_trcd_d
+sdc_cas       sdr_cas
+sdc_trca_d    sdr_trca_d
+sdc_rfrsh     sdr_rfrsh
+sdc_rfmax     sdr_rfmax
+sdc_mode_reg  m_reg
+sdc_wr_en_n   dt_mask
+sdc_req_len   req_len
+sdc_req_adr   addr

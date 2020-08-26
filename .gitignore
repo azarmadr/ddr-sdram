@@ -10,3 +10,6 @@ Session.vim
 o.txt
 sysC-sim/obj_dir/*
 *16_.V
+sysC-sim/gra.pdf
+uvm-tb/ddr_sdram_controller/*
+uvm-tb/easier_uvm_gen.log
