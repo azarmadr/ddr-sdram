@@ -38,13 +38,14 @@ public:
          << m_reg.default_event()      << addr.default_event();
    }
 
-      sc_signal<bool>        sclk,   srst,   req,         wr_rd,
-         req_ack,     rd_v,  wr_nxt, init_f, sdr_en,      sdc_sel;
-      sc_signal<uint32_t>    wdata,  rdata,  sdr_twr_d,   sdr_tras_d,  sdr_trp_d,
-         sdr_trcd_d,         sdr_trca_d,     sdr_cas,     sdr_rfrsh,   sdr_rfmax;
+      sc_signal<bool>        sclk,      srst,      req,      wr_rd, req_ack;
+      sc_signal<bool>        rd_v,      wr_nxt,    init_f,   sdr_en,sdc_sel;
+      sc_signal<uint32_t>    wdata,     rdata;
       sc_signal<sc_bv<2> >   req_len;
-      sc_signal<sc_bv<4> >   dt_mask;
-      sc_signal<sc_bv<12> >  m_reg;
+      sc_signal<sc_bv<3> >   sdr_cas,   sdr_rfmax;
+      sc_signal<sc_bv<4> >   dt_mask,   sdr_tras_d,sdr_twr_d;
+      sc_signal<sc_bv<4> >   sdr_trca_d,sdr_trcd_d,sdr_trp_d;
+      sc_signal<sc_bv<12> >  m_reg,     sdr_rfrsh;
       sc_signal<sc_bv<23> >  addr;
 
       void sync(){
@@ -52,8 +53,8 @@ public:
       }
       void req_ack_done(){
          while(1){
-	    wait(addr.default_event());
-	    req = 1;
+            wait(addr.default_event());
+            req = 1;
             wait(req_ack.posedge_event()|m_reg.default_event());
             req = 0;
          }

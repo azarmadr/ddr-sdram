@@ -199,7 +199,7 @@ begin
              	 	    ( sdc_mode_reg[2:0] == 3'b011) ? 4'h8 :
 	                    ( sdc_mode_reg[2:0] == 3'b111) ? 4'hff : 4'h8;
 
-		beat	 	= sdc_req_len + 3'b001;	//# of beat = len + 1
+		beat	= sdc_req_len + 4'b001;	//# of beat = len + 1
 		byte   	= (8'h08)  << beat;
 		bustNT 	= (byte)   >> 2;
 		bustN  	= (bustNT) >>sft ;

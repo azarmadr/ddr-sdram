@@ -4,7 +4,7 @@
 //`include"mt46v4m16.v"
 //`include"MT48LC1M16A1.V"
 `include"MT48LC8M16A2.V"
-module sdc_agent(
+module sdc_agent/*verilator no_iline_module*/(
    //.....inputs......
    mclk,        s_resetn,   sdc_req,      sdc_req_adr, sdc_req_len, sdc_req_wr_n, sdc_wr_data,
    sdc_wr_en_n, sdc_en,     sdc_mode_reg, sdc_tras_d,  sdc_trp_d,   sdc_trcd_d,
@@ -24,11 +24,14 @@ input wire [1:0]             sdc_req_len/*verilator sc_bv*/;
 input wire [`U_DATA_MSB:0]   sdc_wr_data;
 input wire [3:0]             sdc_wr_en_n/*verilator sc_bv*/;
 input wire [`SDC_ADDR_MSB:0] sdc_mode_reg/*verilator sc_bv*/;
-input wire [3:0]             sdc_tras_d,     sdc_trp_d,  sdc_trcd_d;
-input wire [2:0]             sdc_cas;
-input wire [3:0]             sdc_trca_d,     sdc_twr_d;
-input wire [11:0]            sdc_rfrsh;
-input wire [2:0]             sdc_rfmax;
+input wire [3:0]             sdc_tras_d/*verilator sc_bv*/;
+input wire [3:0]             sdc_trp_d/*verilator sc_bv*/;
+input wire [3:0]	     sdc_trcd_d/*verilator sc_bv*/;
+input wire [2:0]             sdc_cas/*verilator sc_bv*/;
+input wire [3:0]             sdc_trca_d/*verilator sc_bv*/;
+input wire [3:0]             sdc_twr_d/*verilator sc_bv*/;
+input wire [11:0]            sdc_rfrsh/*verilator sc_bv*/;
+input wire [2:0]             sdc_rfmax/*verilator sc_bv*/;
 
 output wire [`U_DATA_MSB:0] sdc_rd_data;
 output wire sdc_init_done, sdc_req_ack,    sdc_rd_valid,  sdc_wr_next,  sdc_clk;

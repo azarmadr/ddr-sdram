@@ -5,7 +5,7 @@ always@(m_reg)begin
    wr_rd      <= 0;
    wdata      <= 0;
    dt_mask    <= 0;
-   sdr_en     <= 0;
+   sdr_en     <= 1;
    sdr_tras_d <= 4'b1111;
    sdr_trp_d  <= 4'b1000;
    sdr_trcd_d <= 4'b0011;

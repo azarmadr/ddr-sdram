@@ -50,11 +50,11 @@ void drv_sdc::init_sdr(){
       vif->wdata      = 0x0;
       vif->dt_mask    = 0x0;
       vif->sdr_en     = 0;
-      vif->sdr_tras_d = 0b1111;
-      vif->sdr_trp_d  = 0b1000;
-      vif->sdr_trcd_d = 0b0011;
-      vif->sdr_trca_d = 0b1010;
-      vif->sdr_twr_d  = 0b0010;
+      vif->sdr_tras_d = "1111";
+      vif->sdr_trp_d  = "1000";
+      vif->sdr_trcd_d = "0011";
+      vif->sdr_trca_d = "1010";
+      vif->sdr_twr_d  = "0010";
       vif->sdr_rfrsh  = 0x07f;
       vif->sdr_rfmax  = 0b11;
       sc_bv<3> t;
